@@ -1,0 +1,193 @@
+//
+//  ListViewController.swift
+//  TimeTracker
+//
+//  Created by Hye Ri Kim on 2024/12/22.
+//
+
+import UIKit
+import SnapKit
+import CoreLocation
+
+class ListViewController: UIViewController {
+
+    lazy var tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(CityTableViewCell.self, forCellReuseIdentifier: Const.cellName)
+        return tableView
+    }()
+    
+    lazy var emptyLabel: UILabel = {
+        let label = UILabel()
+        label.text = "도시를 선택해주세요"
+        label.textColor = .black
+        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.textAlignment = .center
+        return label
+    }()
+    
+    private var cityList: [City] = []
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        loadCityList()
+        setupNavigationBar()
+        setupView()
+        setupTableView()
+    }
+
+    private func setupView() {
+        view.backgroundColor = .systemBackground
+    }
+    
+    private func setupNavigationBar() {
+        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
+        navigationItem.rightBarButtonItem = addButton
+        navigationItem.leftBarButtonItem = editButtonItem
+
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
+        navigationController?.navigationBar.backgroundColor = .clear
+        navigationController?.navigationBar.tintColor = .black
+    }
+        
+    @objc func addButtonTapped() {
+        let citySearchViewController = CitySearchViewController()
+        citySearchViewController.delegate = self
+        navigationController?.present(citySearchViewController, animated: true)
+    }
+    
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        guard cityList.isEmpty == false else {
+            showToast(message: "변경할 데이터가 없습니다")
+            return
+        }
+        
+        super.setEditing(editing, animated: animated)
+
+        // 편집 모드가 활성화되면 추가 작업 수행
+        if editing {
+            print("Editing mode enabled")
+            tableView.visibleCells.forEach { cell in
+                if let customCell = cell as? CityTableViewCell {
+                    customCell.rightHorizontalStackView.isHidden = true
+                    customCell.horizontalContainerStackViewLeftMargin?.update(offset: 60)
+                }
+            }
+        } else {
+            print("Editing mode disabled")
+            tableView.visibleCells.forEach { cell in
+                if let customCell = cell as? CityTableViewCell {
+                    customCell.rightHorizontalStackView.isHidden = false
+                    customCell.horizontalContainerStackViewLeftMargin?.update(offset: 16)
+                }
+            }
+        }
+        // 테이블 뷰의 편집 상태를 업데이트
+        tableView.setEditing(editing, animated: animated)
+    }
+    
+    private func setupTableView() {
+        view.addSubview(tableView)
+        
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.bottom.left.right.equalToSuperview()
+        }
+    }
+    
+    private func loadCityList() {
+        cityList = City.loadCitiesFromUserDefaults()
+        tableView.reloadData()
+        showEmptyLabel(cityList.isEmpty)
+    }
+    
+    private func showEmptyLabel(_ value: Bool) {
+        tableView.isHidden = value
+        
+        if value {
+            view.addSubview(emptyLabel)
+            emptyLabel.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.centerY.equalToSuperview()
+            }
+        } else {
+            emptyLabel.removeFromSuperview()
+        }
+    }
+}
+
+extension ListViewController: CitySearchDelegate {
+    func passSelectedCity(didSelectCity city: City) {
+        loadCityList()
+    }
+}
+
+extension ListViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return cityList.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: Const.cellName, for: indexPath) as? CityTableViewCell else {
+            return UITableViewCell()
+        }
+        cell.configure(city: cityList[indexPath.row])
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedCity = cityList[indexPath.row]
+        print("selectedCity \(selectedCity)")
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let city = cityList[indexPath.row]
+            
+            city.deleteCityFromUserDefaults(cityName: city.name) { [weak self] result in
+                switch result {
+                case .success:
+                    guard let self = self else { return }
+                    print("City deleted successfully!")
+                    cityList.remove(at: indexPath.row)
+                    showToast(message: "\(city.name) 삭제 완료")
+                    tableView.deleteRows(at: [indexPath], with: .fade)
+                case .failure(let error):
+                    guard let self = self else { return }
+                    print("Failed to delete city: \(error)")
+                    showToast(message: "\(city.name) 삭제 실패")
+                }
+            }
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        return true // 모든 셀 이동 가능
+    }
+    
+    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        let movedCity = cityList.remove(at: sourceIndexPath.row)
+        cityList.insert(movedCity, at: destinationIndexPath.row)
+    }
+    
+    func tableView(_ tableView: UITableView, willBeginEditingRowAt indexPath: IndexPath) {
+        print("편집 모드가 시작됩니다: \(indexPath)")
+    }
+
+    func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
+        print("편집 모드가 종료되었습니다.")
+        
+        loadCityList()
+    }
+}
+
+extension ListViewController {
+    enum Const {
+        static let cellName = "CityTableViewCell"
+    }
+}
