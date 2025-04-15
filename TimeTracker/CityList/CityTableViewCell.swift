@@ -36,7 +36,6 @@ class CityTableViewCell: UITableViewCell {
     
     lazy var gapLabel: UILabel = {
         let label = UILabel()
-        label.text = "today, +0"
         label.textColor = .black
         label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         label.textAlignment = .center
@@ -45,7 +44,6 @@ class CityTableViewCell: UITableViewCell {
     
     lazy var cityLabel: UILabel = {
         let label = UILabel()
-        label.text = "San Jose"
         label.textColor = .black
         label.font = UIFont.systemFont(ofSize: 25, weight: .bold)
         label.textAlignment = .center
@@ -54,7 +52,6 @@ class CityTableViewCell: UITableViewCell {
     
     lazy var timeLabel: UILabel = {
         let label = UILabel()
-        label.text = "오전 11:00"
         label.textColor = .black
         label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
         label.textAlignment = .center
@@ -63,11 +60,16 @@ class CityTableViewCell: UITableViewCell {
     
     lazy var weatherLabel: UILabel = {
         let label = UILabel()
-        label.text = "맑음"
         label.textColor = .black
         label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
         label.textAlignment = .center
         return label
+    }()
+    
+    private lazy var formatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm"
+        return f
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -96,6 +98,35 @@ class CityTableViewCell: UITableViewCell {
     func configure(city: City) {
         cityLabel.text = city.name
         
+        // 1. 현재 시간 표시
+        updateTime(for: city)
+        
+        // 2. 시차 표시
+        if let timeZone = TimeZone(identifier: city.timeZoneIdentifier) {
+            let now = Date()
+            let currentOffset = timeZone.secondsFromGMT(for: now)
+            let localOffset = TimeZone.current.secondsFromGMT(for: now)
+            let hourDiff = (currentOffset - localOffset) / 3600
+
+            let calendar = Calendar.current
+            let cityDay = calendar.component(.day, from: now.addingTimeInterval(TimeInterval(hourDiff * 3600)))
+            let localDay = calendar.component(.day, from: now)
+
+            var gapText = ""
+            if hourDiff == 0 {
+                gapText = "오늘, ±0"
+            } else {
+                let dayChange = cityDay - localDay
+                let dayText = dayChange == 1 ? "내일" : (dayChange == -1 ? "어제" : "오늘")
+                gapText = "\(dayText), \(hourDiff >= 0 ? "+" : "")\(hourDiff)"
+            }
+            gapLabel.text = gapText
+        }
+    }
+
+    func updateTime(for city: City) {
+        formatter.timeZone = TimeZone(identifier: city.timeZoneIdentifier)
+        timeLabel.text = formatter.string(from: Date())
     }
     
     private func setupLayouts() {
@@ -111,46 +142,5 @@ class CityTableViewCell: UITableViewCell {
         
         leftVerticalStackView.addArrangedSubviews([gapLabel, cityLabel])
         rightHorizontalStackView.addArrangedSubviews([timeLabel, weatherLabel])
-    }
-}
-
-
-extension CityTableViewCell {
-    func getCurrentTime(latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
-        // CLLocation을 생성
-        let location = CLLocation(latitude: latitude, longitude: longitude)
-
-        // CLGeocoder를 사용해 위치 정보 가져오기
-        let geocoder = CLGeocoder()
-        geocoder.reverseGeocodeLocation(location) { placemarks, error in
-            if let error = error {
-                print("에러 발생: \(error.localizedDescription)")
-                return
-            }
-            
-            guard let placemark = placemarks?.first,
-                  let timeZone = placemark.timeZone else {
-                print("시간대를 찾을 수 없습니다.")
-                return
-            }
-            
-            // 현재 디바이스의 시간대 가져오기
-            let currentDeviceTimeZone = TimeZone.current
-            
-            // 시간 차이를 초 단위로 계산
-            let secondsDifference = timeZone.secondsFromGMT() - currentDeviceTimeZone.secondsFromGMT()
-            let hoursDifference = secondsDifference / 3600
-            
-            print("해당 위치와 디바이스의 시간 차이: \(hoursDifference)시간")
-            
-            // 현재 시간 가져오기
-            let currentDate = Date()
-            let formatter = DateFormatter()
-            formatter.timeZone = timeZone
-            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-            
-            let localTime = formatter.string(from: currentDate)
-            print("현재 시간: \(localTime)")
-        }
     }
 }

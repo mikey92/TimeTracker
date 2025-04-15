@@ -27,7 +27,7 @@ extension UIViewController {
         let expectedSize = toastLabel.sizeThatFits(maxTitleSize)
         toastLabel.frame = CGRect(
             x: (view.bounds.size.width - expectedSize.width) / 2,
-            y: view.bounds.size.height - 100,
+            y: view.bounds.size.height - 150,
             width: expectedSize.width + 20,
             height: expectedSize.height + 10
         )

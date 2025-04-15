@@ -9,9 +9,10 @@ import Foundation
 
 struct City: Codable {
     let name: String        // 도시 이름
-    let lon: Double         // 경도
-    let lat: Double         // 위도
+    let lng: String         // 경도
+    let lat: String         // 위도
     let country: String     // 국가 이름
+    let timeZoneIdentifier: String
 }
 
 extension City {

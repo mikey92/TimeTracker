@@ -10,6 +10,8 @@ import SnapKit
 import CoreLocation
 
 class ListViewController: UIViewController {
+    private var timer: Timer?
+    var weatherCache: [String: String] = [:] // key = city.name
 
     lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -37,6 +39,7 @@ class ListViewController: UIViewController {
         setupNavigationBar()
         setupView()
         setupTableView()
+        startClockTimer()
     }
 
     private func setupView() {
@@ -100,6 +103,32 @@ class ListViewController: UIViewController {
         }
     }
     
+    private func startClockTimer() {
+        timer?.invalidate()
+
+        let now = Date()
+        let calendar = Calendar.current
+        let seconds = calendar.component(.second, from: now)
+        let delay = Double(60 - seconds)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            self?.updateVisibleCellTimes()
+
+            self?.timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
+                self?.updateVisibleCellTimes()
+            }
+        }
+    }
+
+    private func updateVisibleCellTimes() {
+        for cell in tableView.visibleCells {
+            guard let indexPath = tableView.indexPath(for: cell),
+                  let customCell = cell as? CityTableViewCell else { continue }
+            let city = cityList[indexPath.row]
+            customCell.updateTime(for: city)
+        }
+    }
+    
     private func loadCityList() {
         cityList = City.loadCitiesFromUserDefaults()
         tableView.reloadData()
@@ -119,6 +148,50 @@ class ListViewController: UIViewController {
             emptyLabel.removeFromSuperview()
         }
     }
+    
+    deinit {
+        timer?.invalidate()
+    }
+    
+    // MARK: - 날씨 요청 함수
+    private func fetchWeather(for city: City, completion: @escaping (String) -> Void) {
+        let apiKey = "4388e2e6aee33ab74393126f5341f486"
+        let apiUrl = "https://api.openweathermap.org/data/2.5/weather?lat=\(city.lat)&lon=\(city.lng)&appid=\(apiKey)"
+        
+        guard let url = URL(string: apiUrl) else {
+            print("Invalid URL")
+            return
+        }
+
+        let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            if let error = error {
+                print("Weather error: \(error.localizedDescription)")
+                return
+            }
+
+            guard let data = data else {
+                print("No data received")
+                return
+            }
+
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                   let main = json["main"] as? [String: Any],
+                   let temp = main["temp"] as? Double {
+                    let celsius = temp - 273.15
+                    let result = "\(Int(celsius))°C"
+                    DispatchQueue.main.async {
+                        self?.weatherCache[city.name] = result
+                        completion(result)
+                    }
+                }
+            } catch {
+                print("Weather JSON parsing error: \(error.localizedDescription)")
+            }
+        }
+
+        task.resume()
+    }
 }
 
 extension ListViewController: CitySearchDelegate {
@@ -136,9 +209,24 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: Const.cellName, for: indexPath) as? CityTableViewCell else {
             return UITableViewCell()
         }
-        cell.configure(city: cityList[indexPath.row])
+
+        let city = cityList[indexPath.row]
+        cell.configure(city: city)
+
+        if let cachedWeather = weatherCache[city.name] {
+            cell.weatherLabel.text = cachedWeather
+        } else {
+            fetchWeather(for: city) { weather in
+                // 셀 재사용 확인 후 업데이트
+                if let visibleCell = tableView.cellForRow(at: indexPath) as? CityTableViewCell {
+                    visibleCell.weatherLabel.text = weather
+                }
+            }
+        }
+
         return cell
     }
+
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedCity = cityList[indexPath.row]

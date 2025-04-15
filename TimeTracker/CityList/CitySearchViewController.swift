@@ -35,6 +35,7 @@ class CitySearchViewController: UIViewController {
         super.viewDidLoad()
         
         setupView()
+        setupTapGestureToDismissKeyboard()
         registerNotifications()
         setupSearchBar()
         setupTableView()
@@ -48,6 +49,16 @@ class CitySearchViewController: UIViewController {
     
     private func setupView() {
         view.backgroundColor = .systemBackground
+    }
+    
+    private func setupTapGestureToDismissKeyboard() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     private func registerNotifications() {
