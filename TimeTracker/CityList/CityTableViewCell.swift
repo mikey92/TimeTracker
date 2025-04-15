@@ -26,10 +26,18 @@ class CityTableViewCell: UITableViewCell {
         return stackView
     }()
     
+    lazy var timeHorizontalStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.alignment = .firstBaseline
+        stackView.spacing = 4
+        return stackView
+    }()
+    
     lazy var rightHorizontalStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
-        stackView.alignment = .bottom
+        stackView.alignment = .firstBaseline
         stackView.spacing = 12
         return stackView
     }()
@@ -50,6 +58,14 @@ class CityTableViewCell: UITableViewCell {
         return label
     }()
     
+    lazy var amPmLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .black
+        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        label.textAlignment = .center
+        return label
+    }()
+    
     lazy var timeLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
@@ -66,9 +82,17 @@ class CityTableViewCell: UITableViewCell {
         return label
     }()
     
-    private lazy var formatter: DateFormatter = {
+    private lazy var amPmFormatter: DateFormatter = {
         let f = DateFormatter()
-        f.dateFormat = "HH:mm"
+        f.locale = Locale(identifier: "ko_KR")
+        f.dateFormat = "a" // 오전 / 오후만
+        return f
+    }()
+
+    private lazy var timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "ko_KR")
+        f.dateFormat = "hh:mm" // 시간만
         return f
     }()
     
@@ -91,6 +115,7 @@ class CityTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         gapLabel.text = nil
         cityLabel.text = nil
+        amPmLabel.text = nil
         timeLabel.text = nil
         weatherLabel.text = nil
     }
@@ -125,8 +150,14 @@ class CityTableViewCell: UITableViewCell {
     }
 
     func updateTime(for city: City) {
-        formatter.timeZone = TimeZone(identifier: city.timeZoneIdentifier)
-        timeLabel.text = formatter.string(from: Date())
+        guard let timeZone = TimeZone(identifier: city.timeZoneIdentifier) else { return }
+        let now = Date()
+
+        amPmFormatter.timeZone = timeZone
+        timeFormatter.timeZone = timeZone
+
+        amPmLabel.text = amPmFormatter.string(from: now)
+        timeLabel.text = timeFormatter.string(from: now)
     }
     
     private func setupLayouts() {
@@ -138,9 +169,10 @@ class CityTableViewCell: UITableViewCell {
             make.bottom.right.equalToSuperview().offset(-16)
         }
         
-        horizontalContainerStackView.addArrangedSubviews([leftVerticalStackView, rightHorizontalStackView])
+        horizontalContainerStackView.addArrangedSubviews([leftVerticalStackView, timeHorizontalStackView, rightHorizontalStackView])
         
         leftVerticalStackView.addArrangedSubviews([gapLabel, cityLabel])
-        rightHorizontalStackView.addArrangedSubviews([timeLabel, weatherLabel])
+        timeHorizontalStackView.addArrangedSubviews([amPmLabel, timeLabel])
+        rightHorizontalStackView.addArrangedSubviews([timeHorizontalStackView, weatherLabel])
     }
 }

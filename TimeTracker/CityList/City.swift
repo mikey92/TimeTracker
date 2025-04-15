@@ -16,6 +16,7 @@ struct City: Codable {
 }
 
 extension City {
+    // 개별 저장
     func saveCityToUserDefaults() -> Bool {
         let defaults = UserDefaults.standard
 
@@ -36,6 +37,21 @@ extension City {
         } catch {
             print("Failed to save city: \(error)")
             return false // 저장 실패
+        }
+    }
+    
+    // 순서 저장
+    static func saveCityListToUserDefaults(_ cities: [City]) -> Bool {
+        let defaults = UserDefaults.standard
+
+        do {
+            let data = try JSONEncoder().encode(cities)
+            defaults.set(data, forKey: "cities")
+            print("City list saved with new order!")
+            return true
+        } catch {
+            print("Failed to save city list: \(error)")
+            return false
         }
     }
     

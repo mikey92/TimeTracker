@@ -261,6 +261,12 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         let movedCity = cityList.remove(at: sourceIndexPath.row)
         cityList.insert(movedCity, at: destinationIndexPath.row)
+        
+        if City.saveCityListToUserDefaults(cityList) {
+            showToast(message: "순서 변경 완료")
+        } else {
+            showToast(message: "순서 변경 실패")
+        }
     }
     
     func tableView(_ tableView: UITableView, willBeginEditingRowAt indexPath: IndexPath) {
