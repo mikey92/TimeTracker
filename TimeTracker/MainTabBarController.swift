@@ -11,8 +11,12 @@ final class MainTabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tabBar.tintColor = .black
-        tabBar.unselectedItemTintColor = .gray
+        tabBar.tintColor = UIColor.label
+        
+        tabBar.unselectedItemTintColor = UIColor.secondaryLabel
+        
+        tabBar.barTintColor = UIColor.systemBackground
+        tabBar.isTranslucent = false
 
         viewControllers = [
             makeTab(viewController: ListViewController(), title: "도시", icon: "globe"),

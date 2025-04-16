@@ -102,8 +102,8 @@
 		7B0F67C22DA9519A0011857C /* Alarm */ = {
 			isa = PBXGroup;
 			children = (
-				7B7FC2C72DA94E4C0064AB2F /* AlarmViewController.swift */,
 				7B0F67BF2DA9511C0011857C /* AlarmListViewController.swift */,
+				7B7FC2C72DA94E4C0064AB2F /* AlarmViewController.swift */,
 				7B3B69E82DA9754100947091 /* Alarm.swift */,
 			);
 			path = Alarm;

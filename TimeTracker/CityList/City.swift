@@ -21,22 +21,21 @@ extension City {
         let defaults = UserDefaults.standard
 
         do {
-            // 기존 저장된 배열 가져오기
             var cities = City.loadCitiesFromUserDefaults()
 
-            // 새로운 City 추가
+            if cities.contains(self) {
+                print("City already exists. Skipping save.")
+                return false
+            }
+
             cities.append(self)
-
-            // City 배열을 JSON 데이터로 인코딩
             let data = try JSONEncoder().encode(cities)
-
-            // UserDefaults에 저장
             defaults.set(data, forKey: "cities")
             print("City saved successfully!")
-            return true // 저장 성공
+            return true
         } catch {
             print("Failed to save city: \(error)")
-            return false // 저장 실패
+            return false
         }
     }
     
@@ -103,5 +102,7 @@ extension City {
 }
 
 extension City: Equatable {
-    
+    static func == (lhs: City, rhs: City) -> Bool {
+        return lhs.name == rhs.name && lhs.timeZoneIdentifier == rhs.timeZoneIdentifier
+    }
 }

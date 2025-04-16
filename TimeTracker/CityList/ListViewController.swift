@@ -24,7 +24,7 @@ class ListViewController: UIViewController {
     lazy var emptyLabel: UILabel = {
         let label = UILabel()
         label.text = "도시를 선택해주세요"
-        label.textColor = .black
+        label.textColor = .label
         label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
         label.textAlignment = .center
         return label
@@ -55,7 +55,7 @@ class ListViewController: UIViewController {
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.isTranslucent = true
         navigationController?.navigationBar.backgroundColor = .clear
-        navigationController?.navigationBar.tintColor = .black
+        navigationController?.navigationBar.tintColor = .label
     }
         
     @objc func addButtonTapped() {
@@ -195,6 +195,10 @@ class ListViewController: UIViewController {
 }
 
 extension ListViewController: CitySearchDelegate {
+    func citySearch(_ controller: CitySearchViewController, didSelect city: City, for type: CitySelectionType) {
+        // nothing to do
+    }
+    
     func passSelectedCity(didSelectCity city: City) {
         loadCityList()
     }

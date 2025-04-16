@@ -10,32 +10,32 @@ import SnapKit
 
 final class TimeConverterViewController: UIViewController {
     
-    private let baseCityLabel = UILabel()
-    private let targetCityLabel = UILabel()
     private let datePicker = UIDatePicker()
-    
     private let dividerView = UIView()
     
     private let convertButton = UIButton(type: .system)
     private let resultContainerView = UIView()
     private let resultLabel = UILabel()
 
-    private var baseCity: City = City(
-        name: "Seoul",
-        lng: "126.9780",
-        lat: "37.5665",
-        country: "South Korea",
-        timeZoneIdentifier: "Asia/Seoul"
-    )
-    
-    private var targetCity: City = City(
-        name: "London",
-        lng: "-0.1276",
-        lat: "51.5072",
-        country: "United Kingdom",
-        timeZoneIdentifier: "Europe/London"
-    )
-    
+    private let baseCityButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("기준 도시 선택", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
+        button.setTitleColor(.label, for: .normal)
+        return button
+    }()
+
+    private let targetCityButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("변환 도시 선택", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
+        button.setTitleColor(.label, for: .normal)
+        return button
+    }()
+
+    private var baseCity: City?
+    private var targetCity: City?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "시간 변환기"
@@ -44,75 +44,94 @@ final class TimeConverterViewController: UIViewController {
     }
 
     private func setupUI() {
-        baseCityLabel.text = "기준 도시: \(baseCity.name)"
-        targetCityLabel.text = "변환 도시: \(targetCity.name)"
-        baseCityLabel.textAlignment = .center
-        targetCityLabel.textAlignment = .center
-        baseCityLabel.font = .systemFont(ofSize: 18)
-        targetCityLabel.font = .systemFont(ofSize: 18)
+        // 1. 서브뷰 추가
+        [resultContainerView, baseCityButton, datePicker, targetCityButton, dividerView, convertButton].forEach {
+            view.addSubview($0)
+        }
 
+        // 2. 스타일 설정
         datePicker.datePickerMode = .dateAndTime
-        datePicker.timeZone = TimeZone(identifier: baseCity.timeZoneIdentifier)
+
+        baseCityButton.addTarget(self, action: #selector(baseCityTapped), for: .touchUpInside)
+        targetCityButton.addTarget(self, action: #selector(targetCityTapped), for: .touchUpInside)
 
         convertButton.setTitle("변환하기", for: .normal)
         convertButton.addTarget(self, action: #selector(convertTapped), for: .touchUpInside)
 
-        [baseCityLabel, datePicker, targetCityLabel, convertButton, dividerView, resultContainerView].forEach {
-            view.addSubview($0)
-        }
-
-        baseCityLabel.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(24)
-            make.left.right.equalToSuperview().inset(24)
-        }
-
-        datePicker.snp.makeConstraints { make in
-            make.top.equalTo(baseCityLabel.snp.bottom).offset(16)
-            make.centerX.equalToSuperview()
-        }
-
-        targetCityLabel.snp.makeConstraints { make in
-            make.top.equalTo(datePicker.snp.bottom).offset(24)
-            make.left.right.equalToSuperview().inset(24)
-        }
-
-        dividerView.backgroundColor = .systemGray4
-        dividerView.snp.makeConstraints { make in
-            make.top.equalTo(targetCityLabel.snp.bottom).offset(16)
-            make.left.right.equalToSuperview().inset(24)
-            make.height.equalTo(1) // 얇은 선
-        }
-        
-        convertButton.snp.makeConstraints { make in
-            make.top.equalTo(dividerView.snp.bottom).offset(24)
-            make.centerX.equalToSuperview()
-            make.height.equalTo(44)
-        }
-
+        // 3. 제약 설정
         resultContainerView.backgroundColor = UIColor.systemGray6
         resultContainerView.layer.cornerRadius = 12
         resultContainerView.layer.masksToBounds = true
 
-        resultLabel.text = "결과가 여기에 표시됩니다"
+        resultContainerView.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(24)
+            make.left.right.equalToSuperview().inset(24)
+        }
+
+        baseCityButton.snp.makeConstraints { make in
+            make.top.equalTo(resultContainerView.snp.bottom).offset(24)
+            make.left.right.equalToSuperview().inset(24)
+            make.height.equalTo(44)
+        }
+
+        datePicker.snp.makeConstraints { make in
+            make.top.equalTo(baseCityButton.snp.bottom).offset(16)
+            make.centerX.equalToSuperview()
+        }
+
+        targetCityButton.snp.makeConstraints { make in
+            make.top.equalTo(datePicker.snp.bottom).offset(24)
+            make.left.right.equalToSuperview().inset(24)
+            make.height.equalTo(44)
+        }
+
+        dividerView.backgroundColor = .systemGray4
+        dividerView.snp.makeConstraints { make in
+            make.top.equalTo(targetCityButton.snp.bottom).offset(16)
+            make.left.right.equalToSuperview().inset(24)
+            make.height.equalTo(1)
+        }
+
+        convertButton.backgroundColor = UIColor.systemGray6
+        convertButton.layer.cornerRadius = 12
+        convertButton.layer.masksToBounds = true
+        convertButton.snp.makeConstraints { make in
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
+            make.centerX.equalToSuperview()
+            make.height.equalTo(44)
+            make.left.right.equalToSuperview().inset(48)
+        }
+
+        resultLabel.text = ""
         resultLabel.font = .systemFont(ofSize: 20, weight: .regular)
         resultLabel.textAlignment = .center
         resultLabel.numberOfLines = 0
 
         resultContainerView.addSubview(resultLabel)
-        resultContainerView.snp.makeConstraints { make in
-            make.top.equalTo(convertButton.snp.bottom).offset(24)
-            make.left.right.equalToSuperview().inset(24)
-        }
-
         resultLabel.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(16)
         }
+    }
+    
+    @objc private func baseCityTapped() {
+        let vc = CitySearchViewController()
+        vc.delegate = self
+        vc.selectionType = .base
+        present(vc, animated: true)
+    }
+
+    @objc private func targetCityTapped() {
+        let vc = CitySearchViewController()
+        vc.delegate = self
+        vc.selectionType = .target
+        present(vc, animated: true)
     }
 
     @objc private func convertTapped() {
         let baseDate = datePicker.date
 
-        guard
+        guard let baseCity = baseCity,
+                let targetCity = targetCity,
             let baseTZ = TimeZone(identifier: baseCity.timeZoneIdentifier),
             let targetTZ = TimeZone(identifier: targetCity.timeZoneIdentifier)
         else {
@@ -159,7 +178,34 @@ final class TimeConverterViewController: UIViewController {
             diffText += ", 하루 전"
         }
 
-        // 7. 결과 표시
         resultLabel.text = "\(targetCity.name)의 시간:\n\(formatted)\n\(diffText)"
     }
+}
+
+extension TimeConverterViewController: CitySearchDelegate {
+    func passSelectedCity(didSelectCity city: City) {
+        // nothing to do
+    }
+    
+    func citySearch(_ controller: CitySearchViewController, didSelect city: City, for type: CitySelectionType) {
+        switch type {
+        case .base:
+            baseCity = city
+            baseCityButton.setTitle("기준 도시: \(city.name)", for: .normal)
+        case .target:
+            targetCity = city
+            targetCityButton.setTitle("변환 도시: \(city.name)", for: .normal)
+        }
+        
+        // datePicker 타임존도 변경
+        guard let baseCity = baseCity,
+              let baseTZ = TimeZone(identifier: baseCity.timeZoneIdentifier) else { return }
+
+        datePicker.timeZone = baseTZ
+    }
+}
+
+enum CitySelectionType {
+    case base
+    case target
 }

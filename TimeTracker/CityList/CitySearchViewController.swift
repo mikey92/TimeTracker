@@ -29,6 +29,7 @@ class CitySearchViewController: UIViewController {
     private var cityList: [City] = []
     private var filteredCityList: [City] = []
     private var isStatusBarHidden = false // 상태 바 숨김 여부를 관리
+    var selectionType: CitySelectionType = .base
     weak var delegate: CitySearchDelegate?
 
     override func viewDidLoad() {
@@ -39,12 +40,17 @@ class CitySearchViewController: UIViewController {
         registerNotifications()
         setupSearchBar()
         setupTableView()
-        loadData()
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        loadData()
     }
     
     private func setupView() {
@@ -165,4 +171,5 @@ extension CitySearchViewController {
 
 protocol CitySearchDelegate: AnyObject {
     func passSelectedCity(didSelectCity city: City)
+    func citySearch(_ controller: CitySearchViewController, didSelect city: City, for type: CitySelectionType)
 }
