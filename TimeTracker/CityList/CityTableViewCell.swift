@@ -164,9 +164,9 @@ class CityTableViewCell: UITableViewCell {
         addSubview(horizontalContainerStackView)
         
         horizontalContainerStackView.snp.makeConstraints { make in
-            horizontalContainerStackViewLeftMargin = make.left.equalToSuperview().offset(16).constraint
-            make.top.equalToSuperview().offset(16)
-            make.bottom.right.equalToSuperview().offset(-16)
+            horizontalContainerStackViewLeftMargin = make.left.equalToSuperview().offset(Const.margin).constraint
+            make.top.equalToSuperview().offset(Const.margin)
+            make.bottom.right.equalToSuperview().offset(-Const.margin)
         }
         
         horizontalContainerStackView.addArrangedSubviews([leftVerticalStackView, timeHorizontalStackView, rightHorizontalStackView])
@@ -175,4 +175,8 @@ class CityTableViewCell: UITableViewCell {
         timeHorizontalStackView.addArrangedSubviews([amPmLabel, timeLabel])
         rightHorizontalStackView.addArrangedSubviews([timeHorizontalStackView, weatherLabel])
     }
+}
+
+enum Const {
+    static let margin = 16
 }

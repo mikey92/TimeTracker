@@ -17,6 +17,14 @@ final class TimeConverterViewController: UIViewController {
     private let resultContainerView = UIView()
     private let resultLabel = UILabel()
 
+    private let useCurrentLocationButton: UIButton = {
+        let button = UIButton(type: .system)
+        let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .medium)
+        button.setImage(UIImage(systemName: "location.fill", withConfiguration: config), for: .normal)
+        button.tintColor = .label
+        return button
+    }()
+    
     private let baseCityButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("기준 도시 선택", for: .normal)
@@ -38,14 +46,14 @@ final class TimeConverterViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "시간 변환기"
+        title = "변환"
         view.backgroundColor = .systemBackground
         setupUI()
     }
 
     private func setupUI() {
         // 1. 서브뷰 추가
-        [resultContainerView, baseCityButton, datePicker, targetCityButton, dividerView, convertButton].forEach {
+        [resultContainerView, useCurrentLocationButton, baseCityButton, datePicker, targetCityButton, dividerView, convertButton].forEach {
             view.addSubview($0)
         }
 
@@ -70,8 +78,15 @@ final class TimeConverterViewController: UIViewController {
 
         baseCityButton.snp.makeConstraints { make in
             make.top.equalTo(resultContainerView.snp.bottom).offset(24)
-            make.left.right.equalToSuperview().inset(24)
+            make.left.equalToSuperview().inset(24)
             make.height.equalTo(44)
+        }
+
+        useCurrentLocationButton.snp.makeConstraints { make in
+            make.centerY.equalTo(baseCityButton)
+            make.left.equalTo(baseCityButton.snp.right).offset(8)
+            make.right.equalToSuperview().inset(24)
+            make.width.height.equalTo(44)
         }
 
         datePicker.snp.makeConstraints { make in

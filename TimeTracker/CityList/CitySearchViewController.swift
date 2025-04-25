@@ -136,7 +136,7 @@ extension CitySearchViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let city = cityList[indexPath.row]
+        let city = searchBar.text?.isEmpty == true ? cityList[indexPath.row] : filteredCityList[indexPath.row]
         print("\(city.name) was selected")
         if city.saveCityToUserDefaults() {
             showToast(message: "저장 완료")

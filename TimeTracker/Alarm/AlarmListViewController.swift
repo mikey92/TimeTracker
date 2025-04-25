@@ -15,7 +15,7 @@ final class AlarmListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "알람 목록"
+        title = "알람"
         view.backgroundColor = .systemBackground
         setupTableView()
         setupNavigationBar()
