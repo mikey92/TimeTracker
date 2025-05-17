@@ -8,17 +8,33 @@
 import UIKit
 import UserNotifications
 import SnapKit
+import GoogleMobileAds
 
-final class AlarmListViewController: UIViewController {
+final class AlarmListViewController: BaseAdViewController {
     private var alarms: [AlarmMeta] = []
-    private let tableView = UITableView()
+    
+    lazy var tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(AlarmTableViewCell.self, forCellReuseIdentifier: Const.cellName)
+        return tableView
+    }()
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        AlarmStorage.deactivateExpiredOneTimeAlarms()
+        alarms = AlarmStorage.load()
+        tableView.reloadData()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "알람"
         view.backgroundColor = .systemBackground
         setupTableView()
         setupNavigationBar()
+        setupAdBanner()
     }
 
     private func setupNavigationBar() {
@@ -27,30 +43,41 @@ final class AlarmListViewController: UIViewController {
 
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.isTranslucent = true
+        navigationController?.navigationBar.isTranslucent = false
         navigationController?.navigationBar.backgroundColor = .clear
         navigationController?.navigationBar.tintColor = .label
     }
     
     @objc func addButtonTapped() {
         // 알람 추가하기
-        let alarmViewController = AlarmViewController()
-        navigationController?.present(alarmViewController, animated: true)
-
+        presentAlarmViewVC()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    func presentAlarmViewVC(withAlaram: AlarmMeta? = nil) {
+        let alarmViewController = AlarmViewController()
+        alarmViewController.alarmMeta = withAlaram
+        alarmViewController.delegate = self
+        let navVC = UINavigationController(rootViewController: alarmViewController)
+        navVC.modalPresentationStyle = .automatic
+        present(navVC, animated: true)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         alarms = AlarmStorage.load()
         tableView.reloadData()
     }
     
     private func setupTableView() {
         view.addSubview(tableView)
-        tableView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        tableView.snp.makeConstraints {
+            $0.left.right.top.equalToSuperview()
+            $0.bottom.equalToSuperview().offset(-50)
+        }
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "AlarmCell")
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.contentInsetAdjustmentBehavior = .automatic
     }
 }
 
@@ -60,24 +87,69 @@ extension AlarmListViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: AlarmTableViewCell.identifier, for: indexPath) as? AlarmTableViewCell else {
+            return UITableViewCell()
+        }
+        cell.selectionStyle = .none
         let alarm = alarms[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: "AlarmCell", for: indexPath)
 
-        let timeStr = String(format: "%02d:%02d", alarm.hour, alarm.minute)
-        let repeatStr = alarm.weekdays.isEmpty ? "1회성" : "반복: \(alarm.weekdays.map { weekdaySymbol(for: $0) }.joined(separator: ", "))"
-        cell.textLabel?.text = "\(alarm.cityName) - \(timeStr) (\(repeatStr))"
+        // ✅ 도시 타임존 기준으로 오전/오후 시각 생성
+        var timeStr = ""
+        if let timeZone = TimeZone(identifier: alarm.timeZoneIdentifier) {
+            var calendar = Calendar.current
+            calendar.timeZone = timeZone
+
+            var components = DateComponents()
+            components.hour = alarm.hour
+            components.minute = alarm.minute
+
+            if let date = calendar.date(from: components) {
+                let formatter = DateFormatter()
+                formatter.timeZone = timeZone
+                formatter.locale = Locale(identifier: "ko_KR")
+                formatter.dateFormat = "a h:mm" // 오전/오후 1:30
+                timeStr = formatter.string(from: date)
+            }
+        }
+
+        let repeatStr = alarm.weekdays.isEmpty
+            ? "1회성"
+            : "반복: \(alarm.weekdays.map { weekdaySymbol(for: $0) }.joined(separator: ", "))"
+
+        cell.configure(time: timeStr,
+                       city: "기준 도시: \(alarm.cityName)",
+                       description: repeatStr,
+                       isOn: alarm.isOn)
+
+        cell.switchChanged = { [weak self] isOn in
+            guard let self else { return }
+
+            let alarm = self.alarms[indexPath.row]
+            AlarmStorage.update(id: alarm.id, isOn: isOn) { isNextDay in
+                if isOn && isNextDay {
+                    DispatchQueue.main.async { [weak self] in
+                        self?.showToast(message: "선택한 시간이 이미 지나\n알람이 내일로 설정되었어요")
+                    }
+                }
+            }
+            self.alarms[indexPath.row].isOn = isOn
+        }
+
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let alarm = alarms[indexPath.row]
+        presentAlarmViewVC(withAlaram: alarm)
     }
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle,
                    forRowAt indexPath: IndexPath) {
-        let alarm = alarms[indexPath.row]
         if editingStyle == .delete {
-            // 1. Notification 제거
-            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [alarm.id])
-            // 2. 메타 데이터 삭제
-            AlarmStorage.remove(id: alarm.id)
-            // 3. UI 업데이트
+            let alarm = alarms[indexPath.row]
+            
+            AlarmStorage.remove(id: alarm.id) // ✅ Notification + 메타 데이터 한 번에 제거
+            
             alarms.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
@@ -87,5 +159,18 @@ extension AlarmListViewController: UITableViewDataSource, UITableViewDelegate {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
         return formatter.shortWeekdaySymbols[(weekday - 1) % 7]
+    }
+}
+
+extension AlarmListViewController {
+    enum Const {
+        static let cellName = "AlarmTableViewCell"
+    }
+}
+
+extension AlarmListViewController: AlarmSettingDelegate {
+    func passAlarmMetaInfo(alarm: AlarmMeta) {
+        alarms = AlarmStorage.load()
+        tableView.reloadData()
     }
 }

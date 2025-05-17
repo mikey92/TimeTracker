@@ -7,7 +7,6 @@
 
 import UIKit
 import SnapKit
-import CoreLocation
 
 class CityTableViewCell: UITableViewCell {
     
@@ -44,7 +43,7 @@ class CityTableViewCell: UITableViewCell {
     
     lazy var gapLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         label.textAlignment = .center
         return label
@@ -52,7 +51,7 @@ class CityTableViewCell: UITableViewCell {
     
     lazy var cityLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = UIFont.systemFont(ofSize: 25, weight: .bold)
         label.textAlignment = .center
         return label
@@ -60,7 +59,7 @@ class CityTableViewCell: UITableViewCell {
     
     lazy var amPmLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
         label.textAlignment = .center
         return label
@@ -68,7 +67,7 @@ class CityTableViewCell: UITableViewCell {
     
     lazy var timeLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
         label.textAlignment = .center
         return label
@@ -76,9 +75,9 @@ class CityTableViewCell: UITableViewCell {
     
     lazy var weatherLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .label
         label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-        label.textAlignment = .center
+        label.textAlignment = .right
         return label
     }()
     

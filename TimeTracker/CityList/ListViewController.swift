@@ -8,11 +8,13 @@
 import UIKit
 import SnapKit
 import CoreLocation
+import UserNotifications
+import GoogleMobileAds
 
-class ListViewController: UIViewController {
+class ListViewController: BaseAdViewController {
     private var timer: Timer?
     var weatherCache: [String: String] = [:] // key = city.name
-
+        
     lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.delegate = self
@@ -31,17 +33,31 @@ class ListViewController: UIViewController {
     }()
     
     private var cityList: [City] = []
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         loadCityList()
         setupNavigationBar()
         setupView()
         setupTableView()
         startClockTimer()
+        requestNotificationPermission()
+        setupAdBanner()
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
     }
 
+    @objc private func appWillEnterForeground() {
+        startClockTimer() // 현재 구현된 타이머 재시작 메서드 재사용
+        updateVisibleCellTimes() // 혹시 타이머 시작 전에 한 번 즉시 갱신하고 싶다면
+    }
+    
     private func setupView() {
         view.backgroundColor = .systemBackground
     }
@@ -49,13 +65,22 @@ class ListViewController: UIViewController {
     private func setupNavigationBar() {
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
         navigationItem.rightBarButtonItem = addButton
-        navigationItem.leftBarButtonItem = editButtonItem
-
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            title: "편집",
+            style: .plain,
+            target: self,
+            action: #selector(editTapped)
+        )
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.isTranslucent = true
         navigationController?.navigationBar.backgroundColor = .clear
         navigationController?.navigationBar.tintColor = .label
+    }
+    
+    @objc private func editTapped() {
+        isEditing.toggle()
+        
     }
         
     @objc func addButtonTapped() {
@@ -99,7 +124,8 @@ class ListViewController: UIViewController {
         
         tableView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            make.bottom.left.right.equalToSuperview()
+            make.left.right.equalToSuperview()
+            make.bottom.equalToSuperview().offset(-50)
         }
     }
     
@@ -151,11 +177,23 @@ class ListViewController: UIViewController {
     
     deinit {
         timer?.invalidate()
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    func requestNotificationPermission() {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if granted {
+                print("✅ 알림 권한 허용됨")
+            } else {
+                print("❌ 알림 권한 거부됨")
+            }
+        }
     }
     
     // MARK: - 날씨 요청 함수
     private func fetchWeather(for city: City, completion: @escaping (String) -> Void) {
-        let apiKey = "4388e2e6aee33ab74393126f5341f486"
+        let apiKey = ""
         let apiUrl = "https://api.openweathermap.org/data/2.5/weather?lat=\(city.lat)&lon=\(city.lng)&appid=\(apiKey)"
         
         guard let url = URL(string: apiUrl) else {
@@ -195,10 +233,10 @@ class ListViewController: UIViewController {
 }
 
 extension ListViewController: CitySearchDelegate {
-    func citySearch(_ controller: CitySearchViewController, didSelect city: City, for type: CitySelectionType) {
+    func passSelectedCity(didSelectCity city: City, for type: CitySelectionType) {
         // nothing to do
     }
-    
+
     func passSelectedCity(didSelectCity city: City) {
         loadCityList()
     }
@@ -213,6 +251,8 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: Const.cellName, for: indexPath) as? CityTableViewCell else {
             return UITableViewCell()
         }
+
+        cell.selectionStyle = .none
 
         let city = cityList[indexPath.row]
         cell.configure(city: city)
