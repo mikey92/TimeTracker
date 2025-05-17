@@ -29,7 +29,8 @@ class CitySearchViewController: UIViewController {
     private var cityList: [City] = []
     private var filteredCityList: [City] = []
     private var isStatusBarHidden = false // 상태 바 숨김 여부를 관리
-    var selectionType: CitySelectionType = .base
+    var selectionType: CitySelectionType = .none
+    var addingAlarm: Bool? = false
     weak var delegate: CitySearchDelegate?
 
     override func viewDidLoad() {
@@ -136,13 +137,19 @@ extension CitySearchViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let city = cityList[indexPath.row]
+        let city = searchBar.text?.isEmpty == true ? cityList[indexPath.row] : filteredCityList[indexPath.row]
         print("\(city.name) was selected")
-        if city.saveCityToUserDefaults() {
-            showToast(message: "저장 완료")
+        if addingAlarm == true {
             delegate?.passSelectedCity(didSelectCity: city)
+        } else if selectionType != .none {
+            delegate?.passSelectedCity(didSelectCity: city, for: selectionType)
         } else {
-            showToast(message: "저장 실패")
+            if city.saveCityToUserDefaults() {
+                showToast(message: "저장 완료")
+                delegate?.passSelectedCity(didSelectCity: city)
+            } else {
+                showToast(message: "저장 실패")
+            }
         }
         self.dismiss(animated: true)
     }
@@ -171,5 +178,5 @@ extension CitySearchViewController {
 
 protocol CitySearchDelegate: AnyObject {
     func passSelectedCity(didSelectCity city: City)
-    func citySearch(_ controller: CitySearchViewController, didSelect city: City, for type: CitySelectionType)
+    func passSelectedCity(didSelectCity city: City, for type: CitySelectionType)
 }

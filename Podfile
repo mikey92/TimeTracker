@@ -8,6 +8,7 @@ target 'TimeTracker' do
   # Pods for TimeTracker
 
 pod 'SnapKit', '~> 5.6.0'
+pod 'Google-Mobile-Ads-SDK'
 
 
 end

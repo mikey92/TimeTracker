@@ -19,7 +19,7 @@ final class MainTabBarController: UITabBarController {
         tabBar.isTranslucent = false
 
         viewControllers = [
-            makeTab(viewController: ListViewController(), title: "도시", icon: "globe"),
+            makeTab(viewController: ListViewController(), title: "세계 시계", icon: "globe"),
             makeTab(viewController: AlarmListViewController(), title: "알람", icon: "alarm"),
             makeTab(viewController: TimeConverterViewController(), title: "변환", icon: "clock.arrow.2.circlepath")
         ]
