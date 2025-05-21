@@ -131,8 +131,8 @@ extension CitySearchViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Const.cellName, for: indexPath)
         let city = searchBar.text?.isEmpty == true ? cityList[indexPath.row] : filteredCityList[indexPath.row]
-        cell.textLabel?.text = city.name
-        cell.detailTextLabel?.text = city.country
+        cell.textLabel?.text = "\(city.name_kr) (\(city.name))"
+        cell.detailTextLabel?.text = "\(city.country_kr) (\(city.country))"
         return cell
     }
     
@@ -160,7 +160,12 @@ extension CitySearchViewController: UISearchBarDelegate {
         if searchText.isEmpty {
             filteredCityList = cityList
         } else {
-            filteredCityList = cityList.filter { $0.name.lowercased().contains(searchText.lowercased()) }
+            filteredCityList = cityList.filter {
+                $0.name.lowercased().contains(searchText.lowercased()) ||
+                $0.country.lowercased().contains(searchText.lowercased()) ||
+                $0.country_kr.contains(searchText) ||
+                $0.name_kr.contains(searchText)
+            }
         }
         tableView.reloadData()
     }

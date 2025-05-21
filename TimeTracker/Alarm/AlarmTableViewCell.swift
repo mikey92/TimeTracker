@@ -38,7 +38,7 @@ final class AlarmTableViewCell: UITableViewCell {
     let toggleSwitch: UISwitch = {
         let toggle = UISwitch()
         toggle.onTintColor = .systemGreen
-        toggle.addTarget(AlarmTableViewCell.self, action: #selector(switchValueChanged), for: .valueChanged)
+        toggle.addTarget(self, action: #selector(switchValueChanged), for: .valueChanged)
         return toggle
     }()
     

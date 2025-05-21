@@ -16,6 +16,7 @@ struct Alarm {
 struct AlarmMeta: Codable, Equatable {
     let id: String
     let cityName: String
+    let cityNameKR: String
     let timeZoneIdentifier: String
     let hour: Int
     let minute: Int

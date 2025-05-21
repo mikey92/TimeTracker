@@ -164,7 +164,7 @@ final class TimeConverterViewController: BaseAdViewController {
 
         // ✅ 결과 표시
         resultContainerView.isHidden = false
-        resultLabel.text = "\(targetCity.name)의 시간:\n\(formatted)\n\(diffText)"
+        resultLabel.text = "\(targetCity.name_kr)(\(targetCity.name))의 시간:\n\(formatted)\n\(diffText)"
     }
 }
 
@@ -173,10 +173,10 @@ extension TimeConverterViewController: CitySearchDelegate {
         switch type {
         case .base:
             baseCity = city
-            baseCityButton.setTitle("기준 도시: \(city.name)", for: .normal)
+            baseCityButton.setTitle("기준 도시: \(city.name_kr)(\(city.name))", for: .normal)
         case .target:
             targetCity = city
-            targetCityButton.setTitle("변환 도시: \(city.name)", for: .normal)
+            targetCityButton.setTitle("변환 도시: \(city.name_kr)(\(city.name))", for: .normal)
         case .none:
             break
         }

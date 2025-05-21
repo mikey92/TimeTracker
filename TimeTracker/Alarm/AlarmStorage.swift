@@ -9,8 +9,9 @@ import Foundation
 import UIKit
 import UserNotifications
 
-enum AlarmStorage {
-    private static let key = "alarm_metas"
+class AlarmStorage {
+    private static let key = "alarms"
+    private static let firedKey = "firedOneTimeAlarmIDs"
 
     static func load() -> [AlarmMeta] {
         guard let data = UserDefaults.standard.data(forKey: key),
@@ -23,46 +24,6 @@ enum AlarmStorage {
     static func save(_ list: [AlarmMeta]) {
         let data = try? JSONEncoder().encode(list)
         UserDefaults.standard.set(data, forKey: key)
-    }
-
-    static func add(_ meta: AlarmMeta) {
-        var all = load()
-        all.append(meta)
-        save(all)
-    }
-
-    static func deactivateExpiredOneTimeAlarms() {
-        var all = load()
-        let now = Date()
-
-        var changed = false
-
-        for i in 0..<all.count {
-            var alarm = all[i]
-            if alarm.isOn,
-               alarm.weekdays.isEmpty { // 1회성
-                let calendar = Calendar.current
-                var triggerDateComponents = DateComponents()
-                triggerDateComponents.hour = alarm.hour
-                triggerDateComponents.minute = alarm.minute
-
-                // 시간대 고려
-                if let timeZone = TimeZone(identifier: alarm.timeZoneIdentifier) {
-                    var tzCalendar = calendar
-                    tzCalendar.timeZone = timeZone
-                    if let today = tzCalendar.date(from: triggerDateComponents),
-                       today < now {
-                        alarm.isOn = false
-                        all[i] = alarm
-                        changed = true
-                    }
-                }
-            }
-        }
-
-        if changed {
-            save(all)
-        }
     }
     
     static func remove(id: String) {
@@ -93,7 +54,7 @@ enum AlarmStorage {
         }
         save(all)
     }
-
+    
     static func update(id: String, isOn: Bool, completion: ((Bool) -> Void)? = nil) {
         var all = load()
         guard let index = all.firstIndex(where: { $0.id == id }) else {
@@ -108,11 +69,16 @@ enum AlarmStorage {
         let center = UNUserNotificationCenter.current()
 
         if isOn {
+            // 알람 다시 켜는 경우: fired 기록 삭제
+            var fired = UserDefaults.standard.dictionary(forKey: firedKey) as? [String: Date] ?? [:]
+            fired.removeValue(forKey: alarm.id)
+            UserDefaults.standard.set(fired, forKey: firedKey)
+
             var didMoveToNextDay = false
 
             let content = UNMutableNotificationContent()
             content.title = "\(alarm.cityName) 알람"
-            content.body = "\(alarm.cityName)의 알람 시간이 되었습니다!"
+            content.body = "\(alarm.cityName)시간으로 \(alarm.hour)시 \(alarm.minute)분이 되었습니다!"
             content.sound = .default
 
             if alarm.weekdays.isEmpty {
@@ -145,7 +111,6 @@ enum AlarmStorage {
                     center.add(request)
                 }
             } else {
-                // 반복 알람
                 for weekday in alarm.weekdays {
                     var dateComponents = DateComponents()
                     dateComponents.weekday = weekday
@@ -174,5 +139,45 @@ enum AlarmStorage {
 
             completion?(false)
         }
+    }
+    
+    static func deactivateExpiredOneTimeAlarms() {
+        var all = load()
+        let now = Date()
+        let userDefaults = UserDefaults.standard
+        let firedIDs = userDefaults.dictionary(forKey: firedKey) as? [String: Date] ?? [:]
+
+        var changed = false
+
+        for i in 0..<all.count {
+            var alarm = all[i]
+            guard alarm.isOn, alarm.weekdays.isEmpty else { continue }
+
+            if let timeZone = TimeZone(identifier: alarm.timeZoneIdentifier) {
+                var calendar = Calendar.current
+                calendar.timeZone = timeZone
+
+                var triggerComponents = DateComponents()
+                triggerComponents.hour = alarm.hour
+                triggerComponents.minute = alarm.minute
+
+                if let triggerDate = calendar.nextDate(after: now, matching: triggerComponents, matchingPolicy: .nextTime, direction: .backward),
+                   triggerDate < now, firedIDs[alarm.id] != nil {
+                    alarm.isOn = false
+                    all[i] = alarm
+                    changed = true
+                }
+            }
+        }
+
+        if changed {
+            save(all)
+        }
+    }
+
+    static func markAlarmAsFired(id: String) {
+        var fired = UserDefaults.standard.dictionary(forKey: firedKey) as? [String: Date] ?? [:]
+        fired[id] = Date()
+        UserDefaults.standard.set(fired, forKey: firedKey)
     }
 }

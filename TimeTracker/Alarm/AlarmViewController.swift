@@ -1,4 +1,3 @@
-//
 //  AlarmViewController.swift
 //  TimeTracker
 //
@@ -13,7 +12,12 @@ final class AlarmViewController: UIViewController {
     var city: City? {
         didSet {
             navigationItem.rightBarButtonItem?.isEnabled = city != nil
-            cityButton.setTitle("기준 도시: \(city?.name ?? "")", for: .normal)
+            if let city = city {
+                cityButton.setTitle("기준 도시: \(city.name_kr)(\(city.name))", for: .normal)
+            }
+            if let timeZone = city?.timeZoneIdentifier {
+                timePicker.timeZone = TimeZone(identifier: timeZone)
+            }
         }
     }
     var alarmMeta: AlarmMeta?
@@ -47,7 +51,7 @@ final class AlarmViewController: UIViewController {
 
     private func setupUI() {
         navigationController?.navigationBar.tintColor = .label
-        
+
         title = alarmMeta == nil ? "알람 추가" : "알람 수정"
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -104,7 +108,13 @@ final class AlarmViewController: UIViewController {
     }
 
     private func configureForEdit(_ meta: AlarmMeta) {
-        city = City(name: meta.cityName, lng: "", lat: "", country: "", timeZoneIdentifier: meta.timeZoneIdentifier)
+        city = City(name: meta.cityName,
+                    lng: "",
+                    lat: "",
+                    country: "",
+                    timeZoneIdentifier: meta.timeZoneIdentifier,
+                    name_kr: meta.cityNameKR,
+                    country_kr: "")
         selectedWeekdays = Set(meta.weekdays)
 
         if let timeZone = TimeZone(identifier: meta.timeZoneIdentifier) {
@@ -148,93 +158,75 @@ final class AlarmViewController: UIViewController {
     }
 
     @objc private func saveAlarm() {
-        guard let selectedCity = city else {
+        guard let selectedCity = city,
+              let timeZone = TimeZone(identifier: selectedCity.timeZoneIdentifier) else {
             showToast(message: "기준 도시를 선택해주세요")
             return
         }
-        
-        let calendar: Calendar = {
-            var cal = Calendar.current
-            if let timeZone = TimeZone(identifier: selectedCity.timeZoneIdentifier) {
-                cal.timeZone = timeZone
-            }
-            return cal
-        }()
 
-        let components = calendar.dateComponents([.hour, .minute], from: timePicker.date)
-        guard let hour = components.hour, let minute = components.minute else {
+        // 기준 도시 시간대 기준으로 선택된 시간 추출
+        var cityCalendar = Calendar.current
+        cityCalendar.timeZone = timeZone
+
+        let pickedDate = timePicker.date
+        let pickedComponents = cityCalendar.dateComponents([.hour, .minute], from: pickedDate)
+        guard let hour = pickedComponents.hour, let minute = pickedComponents.minute else {
             showToast(message: "시간을 선택해주세요")
             return
         }
 
         let content = UNMutableNotificationContent()
-        content.title = "\(selectedCity.name) 알람"
-        content.body = "\(selectedCity.name)의 알람 시간이 되었습니다!"
+        content.title = "\(selectedCity.name_kr) 알람"
+        content.body = "\(selectedCity.name_kr)시간으로 \(hour)시 \(minute)분이 되었습니다!"
         content.sound = .default
 
-        // ✅ 기존 알람 삭제
         if let oldMeta = alarmMeta {
-            if oldMeta.weekdays.isEmpty {
-                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [oldMeta.id])
-            } else {
-                let ids = oldMeta.weekdays.map { "\(oldMeta.id)_\($0)" }
-                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)
-            }
+            AlarmStorage.remove(id: oldMeta.id)
         }
 
-        // ✅ 새 알람 ID 생성
-        var id = alarmMeta?.id ?? ""
-        if id.isEmpty {
-            id = selectedWeekdays.isEmpty ? "alarm_once_\(UUID().uuidString)" : "alarm_repeat_\(UUID().uuidString)"
-        }
+        let id = alarmMeta?.id ?? UUID().uuidString
 
         if selectedWeekdays.isEmpty {
-            // ✅ 1회성 알람
-            var finalDate = timePicker.date
-            if let timeZone = TimeZone(identifier: selectedCity.timeZoneIdentifier) {
-                let pickedDate = timePicker.date
-                let localOffset = TimeInterval(TimeZone.current.secondsFromGMT(for: pickedDate))
-                let targetOffset = TimeInterval(timeZone.secondsFromGMT(for: pickedDate))
-                finalDate = pickedDate - (targetOffset - localOffset)
+            // 1회성 알람
+            var cityComponents = DateComponents()
+            cityComponents.hour = hour
+            cityComponents.minute = minute
+
+            guard let cityDate = cityCalendar.date(from: cityComponents) else {
+                showToast(message: "알람 시간 계산 실패")
+                return
             }
 
-            let triggerComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: finalDate)
-            let trigger = UNCalendarNotificationTrigger(dateMatching: triggerComponents, repeats: false)
+            let localDate = Date(timeInterval: TimeInterval(TimeZone.current.secondsFromGMT(for: cityDate)
+                                      - cityCalendar.timeZone.secondsFromGMT(for: cityDate)), since: cityDate)
 
+            let triggerComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: localDate)
+            let trigger = UNCalendarNotificationTrigger(dateMatching: triggerComponents, repeats: false)
             let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
             UNUserNotificationCenter.current().add(request)
         } else {
-            // ✅ 반복 알람 (기준 도시 시간 → 로컬 시간으로 변환)
+            // 반복 알람
             for weekday in selectedWeekdays {
-                var cityCalendar = Calendar.current
-                if let timeZone = TimeZone(identifier: selectedCity.timeZoneIdentifier) {
-                    cityCalendar.timeZone = timeZone
-                }
+                var weekdayComponents = DateComponents()
+                weekdayComponents.weekday = weekday
+                weekdayComponents.hour = hour
+                weekdayComponents.minute = minute
 
-                // 1. 기준 도시 기준의 요일 + 시간으로 Date 만들기
-                var cityComponents = DateComponents()
-                cityComponents.weekday = weekday
-                cityComponents.hour = hour
-                cityComponents.minute = minute
-
-                guard let cityDate = cityCalendar.nextDate(after: Date(), matching: cityComponents, matchingPolicy: .nextTime) else {
+                guard let cityDate = cityCalendar.nextDate(after: Date(), matching: weekdayComponents, matchingPolicy: .nextTime) else {
                     continue
                 }
 
-                // 2. 해당 Date를 디바이스 시간대로 변환한 DateComponents 만들기
                 let localComponents = Calendar.current.dateComponents([.weekday, .hour, .minute], from: cityDate)
-
-                // 3. 트리거 및 요청 생성
                 let trigger = UNCalendarNotificationTrigger(dateMatching: localComponents, repeats: true)
                 let request = UNNotificationRequest(identifier: "\(id)_\(weekday)", content: content, trigger: trigger)
                 UNUserNotificationCenter.current().add(request)
             }
         }
 
-        // ✅ AlarmMeta 갱신 및 저장
         let meta = AlarmMeta(
             id: id,
             cityName: selectedCity.name,
+            cityNameKR: selectedCity.name_kr,
             timeZoneIdentifier: selectedCity.timeZoneIdentifier,
             hour: hour,
             minute: minute,
@@ -242,11 +234,7 @@ final class AlarmViewController: UIViewController {
             isOn: true
         )
 
-        if alarmMeta != nil {
-            AlarmStorage.update(meta)
-        } else {
-            AlarmStorage.add(meta)
-        }
+        AlarmStorage.update(meta)
 
         showAlert("알람이 저장되었습니다.") { [weak self] in
             self?.delegate?.passAlarmMetaInfo(alarm: meta)

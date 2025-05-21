@@ -11,7 +11,11 @@ import SnapKit
 import GoogleMobileAds
 
 final class AlarmListViewController: BaseAdViewController {
-    private var alarms: [AlarmMeta] = []
+    private var alarms: [AlarmMeta] = [] {
+        didSet {
+            showEmptyLabel(alarms.isEmpty)
+        }
+    }
     
     lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -19,6 +23,15 @@ final class AlarmListViewController: BaseAdViewController {
         tableView.dataSource = self
         tableView.register(AlarmTableViewCell.self, forCellReuseIdentifier: Const.cellName)
         return tableView
+    }()
+    
+    lazy var emptyLabel: UILabel = {
+        let label = UILabel()
+        label.text = "알람을 추가해주세요"
+        label.textColor = .label
+        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.textAlignment = .center
+        return label
     }()
     
     override func viewWillAppear(_ animated: Bool) {
@@ -46,6 +59,20 @@ final class AlarmListViewController: BaseAdViewController {
         navigationController?.navigationBar.isTranslucent = false
         navigationController?.navigationBar.backgroundColor = .clear
         navigationController?.navigationBar.tintColor = .label
+    }
+    
+    private func showEmptyLabel(_ value: Bool) {
+        tableView.isHidden = value
+        
+        if value {
+            view.addSubview(emptyLabel)
+            emptyLabel.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.centerY.equalToSuperview()
+            }
+        } else {
+            emptyLabel.removeFromSuperview()
+        }
     }
     
     @objc func addButtonTapped() {
@@ -117,7 +144,7 @@ extension AlarmListViewController: UITableViewDataSource, UITableViewDelegate {
             : "반복: \(alarm.weekdays.map { weekdaySymbol(for: $0) }.joined(separator: ", "))"
 
         cell.configure(time: timeStr,
-                       city: "기준 도시: \(alarm.cityName)",
+                       city: "기준 도시: \(alarm.cityNameKR) (\(alarm.cityName))",
                        description: repeatStr,
                        isOn: alarm.isOn)
 
@@ -126,13 +153,17 @@ extension AlarmListViewController: UITableViewDataSource, UITableViewDelegate {
 
             let alarm = self.alarms[indexPath.row]
             AlarmStorage.update(id: alarm.id, isOn: isOn) { isNextDay in
-                if isOn && isNextDay {
-                    DispatchQueue.main.async { [weak self] in
-                        self?.showToast(message: "선택한 시간이 이미 지나\n알람이 내일로 설정되었어요")
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { return }
+
+                    if isOn && isNextDay {
+                        self.showToast(message: "선택한 시간이 이미 지나\n알람이 내일로 설정되었어요")
                     }
+
+                    self.alarms = AlarmStorage.load()
+                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
                 }
             }
-            self.alarms[indexPath.row].isOn = isOn
         }
 
         return cell

@@ -60,7 +60,7 @@ class CityTableViewCell: UITableViewCell {
     lazy var amPmLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
-        label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
         label.textAlignment = .center
         return label
     }()

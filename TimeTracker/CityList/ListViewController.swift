@@ -10,6 +10,7 @@ import SnapKit
 import CoreLocation
 import UserNotifications
 import GoogleMobileAds
+import WidgetKit
 
 class ListViewController: BaseAdViewController {
     private var timer: Timer?
@@ -239,6 +240,7 @@ extension ListViewController: CitySearchDelegate {
 
     func passSelectedCity(didSelectCity city: City) {
         loadCityList()
+        updateTop3CitiesForWidget()
     }
 }
 
@@ -321,6 +323,24 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         print("편집 모드가 종료되었습니다.")
         
         loadCityList()
+    }
+}
+
+extension ListViewController {
+    func updateTop3CitiesForWidget() {
+        let top3 = cityList.prefix(3)
+
+        let formattedTop3: [[String: Any]] = top3.map { city in
+            [
+                "city": city.name,
+                "timeZoneIdentifier": city.timeZoneIdentifier
+            ]
+        }
+
+        let userDefaults = UserDefaults(suiteName: "group.com.hyerikim.TimeTracker")
+        userDefaults?.set(formattedTop3, forKey: "Top3Alarms")
+
+        WidgetCenter.shared.reloadTimelines(ofKind: "TimeTrackerWidget")
     }
 }
 

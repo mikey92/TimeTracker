@@ -13,6 +13,8 @@ struct City: Codable {
     let lat: String         // 위도
     let country: String     // 국가 이름
     let timeZoneIdentifier: String
+    let name_kr: String
+    let country_kr: String
 }
 
 extension City {
