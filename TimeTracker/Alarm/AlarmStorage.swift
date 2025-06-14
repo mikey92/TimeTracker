@@ -77,8 +77,13 @@ class AlarmStorage {
             var didMoveToNextDay = false
 
             let content = UNMutableNotificationContent()
-            content.title = "\(alarm.cityName) 알람"
-            content.body = "\(alarm.cityName)시간으로 \(alarm.hour)시 \(alarm.minute)분이 되었습니다!"
+            if LocalizationManager.isKorean {
+                content.title = "\(alarm.cityName) 알람"
+                content.body = "\(alarm.cityName)시간으로 \(alarm.hour)시 \(alarm.minute)분이 되었습니다!"
+            } else {
+                content.title = "\(alarm.cityName) Alarm"
+                content.body = "It's \(alarm.hour):\(String(format: "%02d", alarm.minute)) in \(alarm.cityName)"
+            }
             content.sound = .default
 
             if alarm.weekdays.isEmpty {

@@ -27,7 +27,7 @@ final class AlarmListViewController: BaseAdViewController {
     
     lazy var emptyLabel: UILabel = {
         let label = UILabel()
-        label.text = "알람을 추가해주세요"
+        label.text = String(localized: "add_alarm_prompt")
         label.textColor = .label
         label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
         label.textAlignment = .center
@@ -133,21 +133,28 @@ extension AlarmListViewController: UITableViewDataSource, UITableViewDelegate {
             if let date = calendar.date(from: components) {
                 let formatter = DateFormatter()
                 formatter.timeZone = timeZone
-                formatter.locale = Locale(identifier: "ko_KR")
+                formatter.locale = Locale.current
                 formatter.dateFormat = "a h:mm" // 오전/오후 1:30
                 timeStr = formatter.string(from: date)
             }
         }
 
         let repeatStr = alarm.weekdays.isEmpty
-            ? "1회성"
-            : "반복: \(alarm.weekdays.map { weekdaySymbol(for: $0) }.joined(separator: ", "))"
+            ? String(localized: "oneTime")
+            : "\(String(localized: "repeat")): \(alarm.weekdays.map { weekdaySymbol(for: $0) }.joined(separator: ", "))"
 
-        cell.configure(time: timeStr,
-                       city: "기준 도시: \(alarm.cityNameKR) (\(alarm.cityName))",
-                       description: repeatStr,
-                       isOn: alarm.isOn)
-
+        if LocalizationManager.isKorean {
+            cell.configure(time: timeStr,
+                           city: "\(String(localized: "base_city_label")): \(alarm.cityNameKR) (\(alarm.cityName))",
+                           description: repeatStr,
+                           isOn: alarm.isOn)
+        } else {
+            cell.configure(time: timeStr,
+                           city: "\(String(localized: "base_city_label")): \(alarm.cityName)",
+                           description: repeatStr,
+                           isOn: alarm.isOn)
+        }
+        
         cell.switchChanged = { [weak self] isOn in
             guard let self else { return }
 
@@ -157,7 +164,7 @@ extension AlarmListViewController: UITableViewDataSource, UITableViewDelegate {
                     guard let self else { return }
 
                     if isOn && isNextDay {
-                        self.showToast(message: "선택한 시간이 이미 지나\n알람이 내일로 설정되었어요")
+                        self.showToast(message: String(localized: "alarm_set_for_tomorrow"))
                     }
 
                     self.alarms = AlarmStorage.load()
@@ -188,7 +195,7 @@ extension AlarmListViewController: UITableViewDataSource, UITableViewDelegate {
 
     private func weekdaySymbol(for weekday: Int) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.locale = Locale.current
         return formatter.shortWeekdaySymbols[(weekday - 1) % 7]
     }
 }

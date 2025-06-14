@@ -13,7 +13,11 @@ final class AlarmViewController: UIViewController {
         didSet {
             navigationItem.rightBarButtonItem?.isEnabled = city != nil
             if let city = city {
-                cityButton.setTitle("기준 도시: \(city.name_kr)(\(city.name))", for: .normal)
+                if LocalizationManager.isKorean {
+                    cityButton.setTitle("\(String(localized: "base_city_label")): \(city.name_kr)(\(city.name))", for: .normal)
+                } else {
+                    cityButton.setTitle("\(String(localized: "base_city_label")): \(city.name)", for: .normal)
+                }
             }
             if let timeZone = city?.timeZoneIdentifier {
                 timePicker.timeZone = TimeZone(identifier: timeZone)
@@ -52,7 +56,7 @@ final class AlarmViewController: UIViewController {
     private func setupUI() {
         navigationController?.navigationBar.tintColor = .label
 
-        title = alarmMeta == nil ? "알람 추가" : "알람 수정"
+        title = alarmMeta == nil ? String(localized: "addAlarm") : String(localized: "editAlarm")
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .cancel,
@@ -67,7 +71,7 @@ final class AlarmViewController: UIViewController {
         )
         navigationItem.rightBarButtonItem?.isEnabled = city != nil
 
-        cityButton.setTitle("기준 도시 선택", for: .normal)
+        cityButton.setTitle(String(localized: "select_base_city"), for: .normal)
         cityButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         cityButton.contentHorizontalAlignment = .center
         cityButton.addTarget(self, action: #selector(selectCityTapped), for: .touchUpInside)
@@ -80,14 +84,14 @@ final class AlarmViewController: UIViewController {
 
         timePicker.datePickerMode = .time
         timePicker.preferredDatePickerStyle = .wheels
-        timePicker.locale = Locale(identifier: "ko_KR")
+        timePicker.locale = Locale.current
         view.addSubview(timePicker)
         timePicker.snp.makeConstraints { make in
             make.top.equalTo(cityButton.snp.bottom).offset(16)
             make.centerX.equalToSuperview()
         }
 
-        let days = ["일", "월", "화", "수", "목", "금", "토"]
+        let days = LocalizationManager.isKorean ? ["일", "월", "화", "수", "목", "금", "토"] : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
         for (index, day) in days.enumerated() {
             let button = UIButton(type: .system)
             button.setTitle(day, for: .normal)
@@ -160,7 +164,7 @@ final class AlarmViewController: UIViewController {
     @objc private func saveAlarm() {
         guard let selectedCity = city,
               let timeZone = TimeZone(identifier: selectedCity.timeZoneIdentifier) else {
-            showToast(message: "기준 도시를 선택해주세요")
+            showToast(message: String(localized: "select_base_city_msg"))
             return
         }
 
@@ -171,13 +175,20 @@ final class AlarmViewController: UIViewController {
         let pickedDate = timePicker.date
         let pickedComponents = cityCalendar.dateComponents([.hour, .minute], from: pickedDate)
         guard let hour = pickedComponents.hour, let minute = pickedComponents.minute else {
-            showToast(message: "시간을 선택해주세요")
+            showToast(message: String(localized: "select_time_msg"))
             return
         }
 
         let content = UNMutableNotificationContent()
-        content.title = "\(selectedCity.name_kr) 알람"
-        content.body = "\(selectedCity.name_kr)시간으로 \(hour)시 \(minute)분이 되었습니다!"
+        
+        if LocalizationManager.isKorean {
+            content.title = "\(selectedCity.name_kr) 알람"
+            content.body = "\(selectedCity.name_kr)시간으로 \(hour)시 \(minute)분이 되었습니다!"
+        } else {
+            content.title = "\(selectedCity.name) Alarm"
+            content.body = "It's \(hour):\(String(format: "%02d", minute)) in \(selectedCity.name)"
+        }
+                
         content.sound = .default
 
         if let oldMeta = alarmMeta {
@@ -193,7 +204,7 @@ final class AlarmViewController: UIViewController {
             cityComponents.minute = minute
 
             guard let cityDate = cityCalendar.date(from: cityComponents) else {
-                showToast(message: "알람 시간 계산 실패")
+                showToast(message: String(localized: "alarm_time_calculation_failed"))
                 return
             }
 
@@ -236,7 +247,7 @@ final class AlarmViewController: UIViewController {
 
         AlarmStorage.update(meta)
 
-        showAlert("알람이 저장되었습니다.") { [weak self] in
+        showAlert(String(localized: "alarm_saved")) { [weak self] in
             self?.delegate?.passAlarmMetaInfo(alarm: meta)
             self?.dismiss(animated: true)
         }
@@ -244,7 +255,7 @@ final class AlarmViewController: UIViewController {
 
     private func showAlert(_ message: String, completion: (() -> Void)? = nil) {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        alert.addAction(.init(title: "확인", style: .default) { _ in completion?() })
+        alert.addAction(.init(title: String(localized: "confirm"), style: .default) { _ in completion?() })
         present(alert, animated: true)
     }
 }

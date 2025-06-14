@@ -22,7 +22,7 @@ class CitySearchViewController: UIViewController {
     lazy var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.delegate = self
-        searchBar.placeholder = NSLocalizedString("searchCity", comment: "search bar placeholder message")
+        searchBar.placeholder = String(localized: "searchCity")
         return searchBar
     }()
     
@@ -131,8 +131,13 @@ extension CitySearchViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Const.cellName, for: indexPath)
         let city = searchBar.text?.isEmpty == true ? cityList[indexPath.row] : filteredCityList[indexPath.row]
-        cell.textLabel?.text = "\(city.name_kr) (\(city.name))"
-        cell.detailTextLabel?.text = "\(city.country_kr) (\(city.country))"
+        if LocalizationManager.isKorean {
+            cell.textLabel?.text = "\(city.name_kr) (\(city.name))"
+            cell.detailTextLabel?.text = "\(city.country_kr) (\(city.country))"
+        } else {
+            cell.textLabel?.text = "\(city.name)"
+            cell.detailTextLabel?.text = "\(city.country)"
+        }
         return cell
     }
     
@@ -145,10 +150,10 @@ extension CitySearchViewController: UITableViewDelegate, UITableViewDataSource {
             delegate?.passSelectedCity(didSelectCity: city, for: selectionType)
         } else {
             if city.saveCityToUserDefaults() {
-                showToast(message: "저장 완료")
+                showToast(message: String(localized: "save_success"))
                 delegate?.passSelectedCity(didSelectCity: city)
             } else {
-                showToast(message: "저장 실패")
+                showToast(message: String(localized: "save_failure"))
             }
         }
         self.dismiss(animated: true)

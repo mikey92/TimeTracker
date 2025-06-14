@@ -26,7 +26,7 @@ class ListViewController: BaseAdViewController {
     
     lazy var emptyLabel: UILabel = {
         let label = UILabel()
-        label.text = "도시를 선택해주세요"
+        label.text = String(localized: "select_city_prompt")
         label.textColor = .label
         label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
         label.textAlignment = .center
@@ -67,7 +67,7 @@ class ListViewController: BaseAdViewController {
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
         navigationItem.rightBarButtonItem = addButton
         navigationItem.leftBarButtonItem = UIBarButtonItem(
-            title: "편집",
+            title: String(localized: "edit"),
             style: .plain,
             target: self,
             action: #selector(editTapped)
@@ -92,7 +92,7 @@ class ListViewController: BaseAdViewController {
     
     override func setEditing(_ editing: Bool, animated: Bool) {
         guard cityList.isEmpty == false else {
-            showToast(message: "변경할 데이터가 없습니다")
+            showToast(message: String(localized: "no_data_to_update"))
             return
         }
         
@@ -216,12 +216,23 @@ class ListViewController: BaseAdViewController {
             do {
                 if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
                    let main = json["main"] as? [String: Any],
-                   let temp = main["temp"] as? Double {
-                    let celsius = temp - 273.15
-                    let result = "\(Int(celsius))°C"
+                   let tempKelvin = main["temp"] as? Double {
+                    
+                    let tempCelsius = tempKelvin - 273.15
+                    let measurement = Measurement(value: tempCelsius, unit: UnitTemperature.celsius)
+                    let convertedTemp = measurement.converted(to: TemperatureUnitManager.unit)
+                    
+                    let flooredTemp = Int(floor(convertedTemp.value))
+                    let formattedTemp: String
+                    if TemperatureUnitManager.isCelsius {
+                        formattedTemp = "\(flooredTemp)°C"
+                    } else {
+                        formattedTemp = "\(flooredTemp)°F"
+                    }
+                    
                     DispatchQueue.main.async {
-                        self?.weatherCache[city.name] = result
-                        completion(result)
+                        self?.weatherCache[city.name] = formattedTemp
+                        completion(formattedTemp)
                     }
                 }
             } catch {
@@ -289,12 +300,12 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
                     guard let self = self else { return }
                     print("City deleted successfully!")
                     cityList.remove(at: indexPath.row)
-                    showToast(message: "\(city.name) 삭제 완료")
+                    showToast(message: "\(city.name) \(String(localized: "delete_success"))")
                     tableView.deleteRows(at: [indexPath], with: .fade)
                 case .failure(let error):
                     guard let self = self else { return }
                     print("Failed to delete city: \(error)")
-                    showToast(message: "\(city.name) 삭제 실패")
+                    showToast(message: "\(city.name) \(String(localized: "delete_failure"))")
                 }
             }
         }
@@ -309,9 +320,9 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         cityList.insert(movedCity, at: destinationIndexPath.row)
         
         if City.saveCityListToUserDefaults(cityList) {
-            showToast(message: "순서 변경 완료")
+            showToast(message: String(localized: "reorder_success"))
         } else {
-            showToast(message: "순서 변경 실패")
+            showToast(message: String(localized: "reorder_failure"))
         }
     }
     

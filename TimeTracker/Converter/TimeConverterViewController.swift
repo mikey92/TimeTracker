@@ -19,14 +19,14 @@ final class TimeConverterViewController: BaseAdViewController {
 
     private let baseCityButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("기준 도시 선택", for: .normal)
+        button.setTitle(String(localized: "select_base_city"), for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16)
         return button
     }()
     
     private let targetCityButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("변환 도시 선택", for: .normal)
+        button.setTitle(String(localized: "select_target_city"), for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16)
         return button
     }()
@@ -54,7 +54,7 @@ final class TimeConverterViewController: BaseAdViewController {
         baseCityButton.addTarget(self, action: #selector(baseCityTapped), for: .touchUpInside)
         targetCityButton.addTarget(self, action: #selector(targetCityTapped), for: .touchUpInside)
         
-        convertButton.setTitle("변환하기", for: .normal)
+        convertButton.setTitle(String(localized: "convert_time"), for: .normal)
         convertButton.addTarget(self, action: #selector(convertTapped), for: .touchUpInside)
         
         // 3. 제약 설정
@@ -123,7 +123,7 @@ final class TimeConverterViewController: BaseAdViewController {
               let targetTZ = TimeZone(identifier: targetCity.timeZoneIdentifier)
         else {
             resultContainerView.isHidden = false
-            resultLabel.text = "도시를 입력해주세요"
+            resultLabel.text = String(localized: "select_city_prompt")
             return
         }
 
@@ -132,7 +132,7 @@ final class TimeConverterViewController: BaseAdViewController {
         // ✅ 타겟 도시 기준 시간으로 출력
         let formatter = DateFormatter()
         formatter.timeZone = targetTZ
-        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.locale = Locale.current
         formatter.dateFormat = "yyyy.MM.dd a h:mm"
         let formatted = formatter.string(from: pickedDate)
 
@@ -149,22 +149,26 @@ final class TimeConverterViewController: BaseAdViewController {
         // ✅ 차이 텍스트 구성
         var diffText = ""
         if hourDifference == 0 {
-            diffText = "(동일 시간대)"
+            diffText = "(\(String(localized: "same_timezone")))"
         } else if hourDifference > 0 {
-            diffText = "(+\(hourDifference)시간)"
+            diffText = "(+\(hourDifference)\(String(localized: "hours")))"
         } else {
-            diffText = "(\(hourDifference)시간)"
+            diffText = "(\(hourDifference)\(String(localized: "hours")))"
         }
 
         if dayDiff == 1 {
-            diffText += ", 하루 뒤"
+            diffText += ", \(String(localized: "next_day"))"
         } else if dayDiff == -1 {
-            diffText += ", 하루 전"
+            diffText += ", \(String(localized: "previous_day"))"
         }
 
         // ✅ 결과 표시
         resultContainerView.isHidden = false
-        resultLabel.text = "\(targetCity.name_kr)(\(targetCity.name))의 시간:\n\(formatted)\n\(diffText)"
+        if LocalizationManager.isKorean {
+            resultLabel.text = "\(targetCity.name_kr)(\(targetCity.name))의 시간:\n\(formatted)\n\(diffText)"
+        } else {
+            resultLabel.text = "Time in \(targetCity.name):\n\(formatted)\n\(diffText)"
+        }
     }
 }
 
@@ -173,10 +177,18 @@ extension TimeConverterViewController: CitySearchDelegate {
         switch type {
         case .base:
             baseCity = city
-            baseCityButton.setTitle("기준 도시: \(city.name_kr)(\(city.name))", for: .normal)
+            if LocalizationManager.isKorean {
+                baseCityButton.setTitle("\(String(localized: "base_city_label")): \(city.name_kr)(\(city.name))", for: .normal)
+            } else {
+                baseCityButton.setTitle("\(String(localized: "base_city_label")): \(city.name)", for: .normal)
+            }
         case .target:
             targetCity = city
-            targetCityButton.setTitle("변환 도시: \(city.name_kr)(\(city.name))", for: .normal)
+            if LocalizationManager.isKorean {
+                targetCityButton.setTitle("\(String(localized: "target_city_label")): \(city.name_kr)(\(city.name))", for: .normal)
+            } else {
+                targetCityButton.setTitle("\(String(localized: "target_city_label")): \(city.name)", for: .normal)
+            }
         case .none:
             break
         }

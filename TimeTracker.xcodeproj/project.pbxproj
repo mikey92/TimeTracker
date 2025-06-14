@@ -25,6 +25,8 @@
 		7B5E371F2DD88A760069A0A5 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B5E37002DD871CF0069A0A5 /* WidgetKit.framework */; };
 		7B5E37202DD88A760069A0A5 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B5E37022DD871CF0069A0A5 /* SwiftUI.framework */; };
 		7B5E372D2DD88A780069A0A5 /* TimeTrackerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7B5E371E2DD88A760069A0A5 /* TimeTrackerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		7B7EC8A42DFD35480029A615 /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7EC8A32DFD35480029A615 /* LocalizationManager.swift */; };
+		7B7EC8A62DFD43FE0029A615 /* TemperatureUnitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7EC8A52DFD43FE0029A615 /* TemperatureUnitManager.swift */; };
 		7B7FC2C82DA94E4C0064AB2F /* AlarmViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7FC2C72DA94E4C0064AB2F /* AlarmViewController.swift */; };
 		7BE3CC3E2D18380B006A1BA6 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7BE3CC3D2D18380B006A1BA6 /* Localizable.xcstrings */; };
 		7BE3CC442D183D13006A1BA6 /* City.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3CC432D183D13006A1BA6 /* City.swift */; };
@@ -83,6 +85,8 @@
 		7B5E37182DD8813D0069A0A5 /* TimeTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TimeTracker.entitlements; sourceTree = "<group>"; };
 		7B5E371E2DD88A760069A0A5 /* TimeTrackerWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TimeTrackerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B5E37322DD88A990069A0A5 /* TimeTrackerWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TimeTrackerWidgetExtension.entitlements; sourceTree = "<group>"; };
+		7B7EC8A32DFD35480029A615 /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
+		7B7EC8A52DFD43FE0029A615 /* TemperatureUnitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureUnitManager.swift; sourceTree = "<group>"; };
 		7B7FC2C72DA94E4C0064AB2F /* AlarmViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmViewController.swift; sourceTree = "<group>"; };
 		7BE3CC3D2D18380B006A1BA6 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		7BE3CC3F2D183857006A1BA6 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Main.strings; sourceTree = "<group>"; };
@@ -186,6 +190,8 @@
 			isa = PBXGroup;
 			children = (
 				7B3B69E62DA969A500947091 /* city_list.json */,
+				7B7EC8A32DFD35480029A615 /* LocalizationManager.swift */,
+				7B7EC8A52DFD43FE0029A615 /* TemperatureUnitManager.swift */,
 			);
 			path = Resource;
 			sourceTree = "<group>";
@@ -366,9 +372,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-TimeTracker/Pods-TimeTracker-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-TimeTracker/Pods-TimeTracker-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -383,9 +393,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-TimeTracker/Pods-TimeTracker-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-TimeTracker/Pods-TimeTracker-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -421,6 +435,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B7EC8A62DFD43FE0029A615 /* TemperatureUnitManager.swift in Sources */,
 				7B7FC2C82DA94E4C0064AB2F /* AlarmViewController.swift in Sources */,
 				7BE3CC4A2D18D3CF006A1BA6 /* UIViewController+Extension.swift in Sources */,
 				7B0F67BE2DA9508A0011857C /* MainTabBarController.swift in Sources */,
@@ -431,6 +446,7 @@
 				7B3B69E92DA9754100947091 /* Alarm.swift in Sources */,
 				7B59F5632D17DB7A00562F6B /* AppDelegate.swift in Sources */,
 				7BE3CC442D183D13006A1BA6 /* City.swift in Sources */,
+				7B7EC8A42DFD35480029A615 /* LocalizationManager.swift in Sources */,
 				7B59F5652D17DB7A00562F6B /* SceneDelegate.swift in Sources */,
 				7BE3CC4C2D18F289006A1BA6 /* SearchCityTableViewCell.swift in Sources */,
 				7BE3CC482D186241006A1BA6 /* UIStackView+Extension.swift in Sources */,

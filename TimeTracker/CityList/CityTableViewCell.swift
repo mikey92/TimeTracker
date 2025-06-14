@@ -83,15 +83,15 @@ class CityTableViewCell: UITableViewCell {
     
     private lazy var amPmFormatter: DateFormatter = {
         let f = DateFormatter()
-        f.locale = Locale(identifier: "ko_KR")
-        f.dateFormat = "a" // 오전 / 오후만
+        f.locale = Locale.autoupdatingCurrent // ✅ 사용자의 언어 설정을 따름
+        f.dateFormat = "a" // 오전 / 오후
         return f
     }()
 
     private lazy var timeFormatter: DateFormatter = {
         let f = DateFormatter()
-        f.locale = Locale(identifier: "ko_KR")
-        f.dateFormat = "hh:mm" // 시간만
+        f.locale = Locale.autoupdatingCurrent // ✅ 사용자의 언어 설정을 따름
+        f.dateFormat = "hh:mm" // 12시간제 시간
         return f
     }()
     
@@ -138,10 +138,10 @@ class CityTableViewCell: UITableViewCell {
 
             var gapText = ""
             if hourDiff == 0 {
-                gapText = "오늘, ±0"
+                gapText = "\(String(localized: "today")), ±0"
             } else {
                 let dayChange = cityDay - localDay
-                let dayText = dayChange == 1 ? "내일" : (dayChange == -1 ? "어제" : "오늘")
+                let dayText = dayChange == 1 ? "\(String(localized: "tomorrow"))" : (dayChange == -1 ? "\(String(localized: "yesterday"))" : "\(String(localized: "today"))")
                 gapText = "\(dayText), \(hourDiff >= 0 ? "+" : "")\(hourDiff)"
             }
             gapLabel.text = gapText

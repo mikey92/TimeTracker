@@ -405,6 +405,15 @@
         "country_kr": "미국"
     },
     {
+        "name": "Guangzhou",
+        "lat": "23.1291",
+        "lng": "113.2644",
+        "country": "China",
+        "timeZoneIdentifier": "Asia/Shanghai",
+        "name_kr": "광저우",
+        "country_kr": "중국"
+    },
+    {
         "name": "Gwangju",
         "lat": "35.1595",
         "lng": "126.8526",
@@ -456,7 +465,7 @@
         "country": "China",
         "timeZoneIdentifier": "Asia/Hong_Kong",
         "name_kr": "홍콩",
-        "country_kr": "중국"
+        "country_kr": "홍콩"
     },
     {
         "name": "Honolulu",
@@ -774,6 +783,15 @@
         "country_kr": "미국"
     },
     {
+        "name": "New Delhi",
+        "lat": "28.6139",
+        "lng": "77.2090",
+        "country": "India",
+        "timeZoneIdentifier": "Asia/Kolkata",
+        "name_kr": "뉴델리",
+        "country_kr": "인도"
+    },
+    {
         "name": "New Orleans",
         "lat": "29.9511",
         "lng": "-90.0715",
@@ -1033,6 +1051,24 @@
         "timeZoneIdentifier": "Asia/Seoul",
         "name_kr": "서울",
         "country_kr": "대한민국"
+    },
+    {
+        "name": "Shanghai",
+        "lat": "31.2304",
+        "lng": "121.4737",
+        "country": "China",
+        "timeZoneIdentifier": "Asia/Shanghai",
+        "name_kr": "상하이",
+        "country_kr": "중국"
+    },
+    {
+        "name": "Shenzhen",
+        "lat": "22.5431",
+        "lng": "114.0579",
+        "country": "China",
+        "timeZoneIdentifier": "Asia/Shanghai",
+        "name_kr": "선전",
+        "country_kr": "중국"
     },
     {
         "name": "Shenzhen",
