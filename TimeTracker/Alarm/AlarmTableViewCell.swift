@@ -108,8 +108,14 @@ final class AlarmTableViewCell: UITableViewCell {
             .font: UIFont.boldSystemFont(ofSize: 30),
             .foregroundColor: UIColor.label
         ]
-        let result = NSMutableAttributedString(string: ampm + " ", attributes: amAttr)
-        result.append(NSAttributedString(string: time, attributes: timeAttr))
+        let result: NSMutableAttributedString
+        if LocalizationManager.isKorean {
+            result = NSMutableAttributedString(string: ampm + " ", attributes: amAttr)
+            result.append(NSAttributedString(string: time, attributes: timeAttr))
+        } else {
+            result = NSMutableAttributedString(string: time, attributes: timeAttr)
+            result.append(NSAttributedString(string: " " + ampm, attributes: amAttr))
+        }
         return result
     }
 }

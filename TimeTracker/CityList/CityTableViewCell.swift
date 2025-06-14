@@ -171,7 +171,11 @@ class CityTableViewCell: UITableViewCell {
         horizontalContainerStackView.addArrangedSubviews([leftVerticalStackView, timeHorizontalStackView, rightHorizontalStackView])
         
         leftVerticalStackView.addArrangedSubviews([gapLabel, cityLabel])
-        timeHorizontalStackView.addArrangedSubviews([amPmLabel, timeLabel])
+        if LocalizationManager.isKorean {
+            timeHorizontalStackView.addArrangedSubviews([amPmLabel, timeLabel])
+        } else {
+            timeHorizontalStackView.addArrangedSubviews([timeLabel, amPmLabel])
+        }
         rightHorizontalStackView.addArrangedSubviews([timeHorizontalStackView, weatherLabel])
     }
 }
