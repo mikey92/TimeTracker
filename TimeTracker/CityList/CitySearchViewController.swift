@@ -22,7 +22,7 @@ class CitySearchViewController: UIViewController {
     lazy var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.delegate = self
-        searchBar.placeholder = String(localized: "searchCity")
+        searchBar.placeholder = String(localized: "search_city")
         return searchBar
     }()
     

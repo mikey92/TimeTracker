@@ -80,6 +80,12 @@ class AlarmStorage {
             if LocalizationManager.isKorean {
                 content.title = "\(alarm.cityName) 알람"
                 content.body = "\(alarm.cityName)시간으로 \(alarm.hour)시 \(alarm.minute)분이 되었습니다!"
+            } else if LocalizationManager.isJapanese {
+                content.title = "\(alarm.cityName)のアラーム"
+                content.body = "\(alarm.cityName)の時間で\(alarm.hour)時\(alarm.minute)分になりました。"
+            } else if LocalizationManager.isSimplifiedChinese {
+                content.title = "\(alarm.cityName)闹钟"
+                content.body = "现在是\(alarm.cityName)时间的\(alarm.hour)点\(alarm.minute)分。"
             } else {
                 content.title = "\(alarm.cityName) Alarm"
                 content.body = "It's \(alarm.hour):\(String(format: "%02d", alarm.minute)) in \(alarm.cityName)"

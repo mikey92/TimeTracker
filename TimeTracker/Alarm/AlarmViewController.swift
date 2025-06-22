@@ -91,7 +91,17 @@ final class AlarmViewController: UIViewController {
             make.centerX.equalToSuperview()
         }
 
-        let days = LocalizationManager.isKorean ? ["일", "월", "화", "수", "목", "금", "토"] : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        let days: [String] = {
+            if LocalizationManager.isKorean {
+                return ["일", "월", "화", "수", "목", "금", "토"]
+            } else if LocalizationManager.isJapanese {
+                return ["日", "月", "火", "水", "木", "金", "土"]
+            } else if LocalizationManager.isChinese {
+                return ["日", "一", "二", "三", "四", "五", "六"]
+            } else {
+                return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+            }
+        }()
         for (index, day) in days.enumerated() {
             let button = UIButton(type: .system)
             button.setTitle(day, for: .normal)
@@ -184,6 +194,12 @@ final class AlarmViewController: UIViewController {
         if LocalizationManager.isKorean {
             content.title = "\(selectedCity.name_kr) 알람"
             content.body = "\(selectedCity.name_kr)시간으로 \(hour)시 \(minute)분이 되었습니다!"
+        } else if LocalizationManager.isJapanese {
+            content.title = "\(selectedCity.name)のアラーム"
+            content.body = "\(selectedCity.name)の時間で\(hour)時\(minute)分になりました。"
+        } else if LocalizationManager.isSimplifiedChinese {
+            content.title = "\(selectedCity.name)闹钟"
+            content.body = "现在是\(selectedCity.name)时间的\(hour)点\(minute)分。"
         } else {
             content.title = "\(selectedCity.name) Alarm"
             content.body = "It's \(hour):\(String(format: "%02d", minute)) in \(selectedCity.name)"

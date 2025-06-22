@@ -166,6 +166,10 @@ final class TimeConverterViewController: BaseAdViewController {
         resultContainerView.isHidden = false
         if LocalizationManager.isKorean {
             resultLabel.text = "\(targetCity.name_kr)(\(targetCity.name))의 시간:\n\(formatted)\n\(diffText)"
+        } else if LocalizationManager.isJapanese {
+            resultLabel.text = "\(targetCity.name)の時間：\n\(formatted)\n\(diffText)"
+        } else if LocalizationManager.isSimplifiedChinese {
+            resultLabel.text = "\(targetCity.name)的时间：\n\(formatted)\n\(diffText)"
         } else {
             resultLabel.text = "Time in \(targetCity.name):\n\(formatted)\n\(diffText)"
         }
