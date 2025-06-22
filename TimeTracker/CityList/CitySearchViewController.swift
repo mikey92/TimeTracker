@@ -7,10 +7,19 @@
 
 import UIKit
 import SnapKit
+import FirebaseCore
+import FirebaseFirestore
 
 class CitySearchViewController: UIViewController {
 
-    lazy var tableView: UITableView = {
+    private lazy var requestButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(String(localized: "city_request_title"), for: .normal)
+        button.addTarget(self, action: #selector(requestCityTapped), for: .touchUpInside)
+        return button
+    }()
+
+    private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.delegate = self
         tableView.dataSource = self
@@ -19,7 +28,7 @@ class CitySearchViewController: UIViewController {
         return tableView
     }()
     
-    lazy var searchBar: UISearchBar = {
+    private lazy var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.delegate = self
         searchBar.placeholder = String(localized: "search_city")
@@ -41,6 +50,7 @@ class CitySearchViewController: UIViewController {
         registerNotifications()
         setupSearchBar()
         setupTableView()
+        setupRequestButton()
     }
     
     deinit {
@@ -104,6 +114,21 @@ class CitySearchViewController: UIViewController {
             make.top.equalTo(searchBar.snp.bottom)
             make.left.right.bottom.equalToSuperview()
         }
+    }
+    
+    private func setupRequestButton() {
+        let footerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 50))
+        footerView.addSubview(requestButton)
+        requestButton.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+        tableView.tableFooterView = footerView
+        updateRequestButtonVisibility()
+    }
+
+    private func updateRequestButtonVisibility() {
+        let shouldShowButton = (searchBar.text?.isEmpty == false) && (filteredCityList.isEmpty)
+        tableView.tableFooterView?.isHidden = !shouldShowButton
     }
     
     private func loadData() {
@@ -171,6 +196,7 @@ extension CitySearchViewController: UISearchBarDelegate {
                 $0.country_kr.contains(searchText) ||
                 $0.name_kr.contains(searchText)
             }
+            updateRequestButtonVisibility()
         }
         tableView.reloadData()
     }
@@ -189,4 +215,58 @@ extension CitySearchViewController {
 protocol CitySearchDelegate: AnyObject {
     func passSelectedCity(didSelectCity city: City)
     func passSelectedCity(didSelectCity city: City, for type: CitySelectionType)
+}
+
+extension CitySearchViewController {
+    @objc func requestCityTapped() {
+        let alert = UIAlertController(
+            title: String(localized: "city_request_title"),
+            message: String(localized: "city_request_placeholder"),
+            preferredStyle: .alert
+        )
+        
+        alert.addTextField { textField in
+            textField.placeholder = "Seoul"
+        }
+        
+        let submitAction = UIAlertAction(title: String(localized: "city_request_submit"), style: .default) { _ in
+            guard let cityName = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !cityName.isEmpty else {
+                self.showAlert(message: String(localized: "city_request_input"))
+                return
+            }
+            
+            self.sendCityRequest(toFirestoreWith: cityName)
+        }
+        
+        let cancelAction = UIAlertAction(title: String(localized: "cancel"), style: .cancel)
+
+        alert.addAction(submitAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true)
+    }
+
+    func sendCityRequest(toFirestoreWith cityName: String) {
+        let db = Firestore.firestore()
+        let data: [String: Any] = [
+            "requestedCity": cityName,
+            "requestedAt": Timestamp(date: Date()),
+            "languageCode": Locale.current.languageCode ?? "unknown"
+        ]
+        
+        db.collection("city_requests").addDocument(data: data) { error in
+            if let error = error {
+                self.showAlert(message: "\(String(localized: "city_request_failed")): \(error)")
+            } else {
+                self.showAlert(message: String(localized: "city_request_success"))
+            }
+        }
+    }
+
+    func showAlert(message: String) {
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
 }

@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		125A9CC234192B4F1AFECE02 /* Pods_TimeTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37F2F6E49E95D4EA8A542B4B /* Pods_TimeTracker.framework */; };
 		7B0F67BE2DA9508A0011857C /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0F67BD2DA9508A0011857C /* MainTabBarController.swift */; };
 		7B0F67C02DA9511C0011857C /* AlarmListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0F67BF2DA9511C0011857C /* AlarmListViewController.swift */; };
 		7B0F67C52DA951CC0011857C /* TimeConverterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0F67C42DA951CC0011857C /* TimeConverterViewController.swift */; };
@@ -25,6 +26,7 @@
 		7B5E371F2DD88A760069A0A5 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B5E37002DD871CF0069A0A5 /* WidgetKit.framework */; };
 		7B5E37202DD88A760069A0A5 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B5E37022DD871CF0069A0A5 /* SwiftUI.framework */; };
 		7B5E372D2DD88A780069A0A5 /* TimeTrackerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7B5E371E2DD88A760069A0A5 /* TimeTrackerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		7B77569B2E08282900B69CE0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7B77569A2E08282900B69CE0 /* GoogleService-Info.plist */; };
 		7B7EC8A42DFD35480029A615 /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7EC8A32DFD35480029A615 /* LocalizationManager.swift */; };
 		7B7EC8A62DFD43FE0029A615 /* TemperatureUnitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7EC8A52DFD43FE0029A615 /* TemperatureUnitManager.swift */; };
 		7B7FC2C82DA94E4C0064AB2F /* AlarmViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7FC2C72DA94E4C0064AB2F /* AlarmViewController.swift */; };
@@ -34,7 +36,6 @@
 		7BE3CC482D186241006A1BA6 /* UIStackView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3CC472D186241006A1BA6 /* UIStackView+Extension.swift */; };
 		7BE3CC4A2D18D3CF006A1BA6 /* UIViewController+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3CC492D18D3CF006A1BA6 /* UIViewController+Extension.swift */; };
 		7BE3CC4C2D18F289006A1BA6 /* SearchCityTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3CC4B2D18F289006A1BA6 /* SearchCityTableViewCell.swift */; };
-		8715FF9F453AFE8477D63C09 /* Pods_TimeTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F86615E01704E5EBE3AD4C9 /* Pods_TimeTracker.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,7 +63,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2F86615E01704E5EBE3AD4C9 /* Pods_TimeTracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TimeTracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		37F2F6E49E95D4EA8A542B4B /* Pods_TimeTracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TimeTracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B0F67BD2DA9508A0011857C /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
 		7B0F67BF2DA9511C0011857C /* AlarmListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmListViewController.swift; sourceTree = "<group>"; };
 		7B0F67C42DA951CC0011857C /* TimeConverterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeConverterViewController.swift; sourceTree = "<group>"; };
@@ -85,6 +86,7 @@
 		7B5E37182DD8813D0069A0A5 /* TimeTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TimeTracker.entitlements; sourceTree = "<group>"; };
 		7B5E371E2DD88A760069A0A5 /* TimeTrackerWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TimeTrackerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B5E37322DD88A990069A0A5 /* TimeTrackerWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TimeTrackerWidgetExtension.entitlements; sourceTree = "<group>"; };
+		7B77569A2E08282900B69CE0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		7B7EC8A32DFD35480029A615 /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
 		7B7EC8A52DFD43FE0029A615 /* TemperatureUnitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureUnitManager.swift; sourceTree = "<group>"; };
 		7B7FC2C72DA94E4C0064AB2F /* AlarmViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmViewController.swift; sourceTree = "<group>"; };
@@ -96,12 +98,12 @@
 		7BE3CC472D186241006A1BA6 /* UIStackView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Extension.swift"; sourceTree = "<group>"; };
 		7BE3CC492D18D3CF006A1BA6 /* UIViewController+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extension.swift"; sourceTree = "<group>"; };
 		7BE3CC4B2D18F289006A1BA6 /* SearchCityTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCityTableViewCell.swift; sourceTree = "<group>"; };
-		946B500C54B2FA5A5979990B /* Pods-TimeTracker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TimeTracker.debug.xcconfig"; path = "Target Support Files/Pods-TimeTracker/Pods-TimeTracker.debug.xcconfig"; sourceTree = "<group>"; };
-		9B93D36F6DE79CBC602CA34E /* Pods-TimeTracker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TimeTracker.release.xcconfig"; path = "Target Support Files/Pods-TimeTracker/Pods-TimeTracker.release.xcconfig"; sourceTree = "<group>"; };
+		938DF430F1FDE5E77183FB10 /* Pods-TimeTracker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TimeTracker.release.xcconfig"; path = "Target Support Files/Pods-TimeTracker/Pods-TimeTracker.release.xcconfig"; sourceTree = "<group>"; };
+		E01998B85177F27340F3A7AE /* Pods-TimeTracker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TimeTracker.debug.xcconfig"; path = "Target Support Files/Pods-TimeTracker/Pods-TimeTracker.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7B5E372E2DD88A780069A0A5 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		7B5E372E2DD88A780069A0A5 /* Exceptions for "TimeTrackerWidget" folder in "TimeTrackerWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -111,7 +113,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		7B5E37212DD88A760069A0A5 /* TimeTrackerWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (7B5E372E2DD88A780069A0A5 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TimeTrackerWidget; sourceTree = "<group>"; };
+		7B5E37212DD88A760069A0A5 /* TimeTrackerWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7B5E372E2DD88A780069A0A5 /* Exceptions for "TimeTrackerWidget" folder in "TimeTrackerWidgetExtension" target */,
+			);
+			path = TimeTrackerWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,7 +128,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8715FF9F453AFE8477D63C09 /* Pods_TimeTracker.framework in Frameworks */,
+				125A9CC234192B4F1AFECE02 /* Pods_TimeTracker.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,8 +147,8 @@
 		120DDB063A6224D7CB5CE7F2 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				946B500C54B2FA5A5979990B /* Pods-TimeTracker.debug.xcconfig */,
-				9B93D36F6DE79CBC602CA34E /* Pods-TimeTracker.release.xcconfig */,
+				E01998B85177F27340F3A7AE /* Pods-TimeTracker.debug.xcconfig */,
+				938DF430F1FDE5E77183FB10 /* Pods-TimeTracker.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -147,9 +156,9 @@
 		72C9800AA785E2EFDC294436 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				2F86615E01704E5EBE3AD4C9 /* Pods_TimeTracker.framework */,
 				7B5E37002DD871CF0069A0A5 /* WidgetKit.framework */,
 				7B5E37022DD871CF0069A0A5 /* SwiftUI.framework */,
+				37F2F6E49E95D4EA8A542B4B /* Pods_TimeTracker.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -200,6 +209,7 @@
 			isa = PBXGroup;
 			children = (
 				7B5E37322DD88A990069A0A5 /* TimeTrackerWidgetExtension.entitlements */,
+				7B77569A2E08282900B69CE0 /* GoogleService-Info.plist */,
 				7B59F5612D17DB7A00562F6B /* TimeTracker */,
 				7B5E37212DD88A760069A0A5 /* TimeTrackerWidget */,
 				7B59F5602D17DB7A00562F6B /* Products */,
@@ -263,13 +273,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7B59F5732D17DB7C00562F6B /* Build configuration list for PBXNativeTarget "TimeTracker" */;
 			buildPhases = (
-				50972F7BCD52761B3E21A5FA /* [CP] Check Pods Manifest.lock */,
+				254E0C4E6D3F777DFC03D862 /* [CP] Check Pods Manifest.lock */,
 				7B59F55B2D17DB7A00562F6B /* Sources */,
 				7B59F55C2D17DB7A00562F6B /* Frameworks */,
 				7B59F55D2D17DB7A00562F6B /* Resources */,
-				34EE826E198C954CECA6EAD8 /* [CP] Embed Pods Frameworks */,
-				16DAD48B37BA43A197EF0304 /* [CP] Copy Pods Resources */,
 				7B5E37112DD871D10069A0A5 /* Embed Foundation Extensions */,
+				1AB772C3DE3C0F4B4AE42E94 /* [CP] Embed Pods Frameworks */,
+				539DDAA57F893B090D4A3037 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -297,8 +307,6 @@
 				7B5E37212DD88A760069A0A5 /* TimeTrackerWidget */,
 			);
 			name = TimeTrackerWidgetExtension;
-			packageProductDependencies = (
-			);
 			productName = TimeTrackerWidgetExtension;
 			productReference = 7B5E371E2DD88A760069A0A5 /* TimeTrackerWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -322,7 +330,6 @@
 				};
 			};
 			buildConfigurationList = 7B59F55A2D17DB7A00562F6B /* Build configuration list for PBXProject "TimeTracker" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -333,6 +340,7 @@
 				"zh-Hans",
 			);
 			mainGroup = 7B59F5562D17DB7A00562F6B;
+			preferredProjectObjectVersion = 77;
 			productRefGroup = 7B59F5602D17DB7A00562F6B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -353,6 +361,7 @@
 				7B3B69E72DA969A500947091 /* city_list.json in Resources */,
 				7BE3CC3E2D18380B006A1BA6 /* Localizable.xcstrings in Resources */,
 				7B59F56A2D17DB7A00562F6B /* Main.storyboard in Resources */,
+				7B77569B2E08282900B69CE0 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,28 +375,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		16DAD48B37BA43A197EF0304 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-TimeTracker/Pods-TimeTracker-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-TimeTracker/Pods-TimeTracker-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TimeTracker/Pods-TimeTracker-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		34EE826E198C954CECA6EAD8 /* [CP] Embed Pods Frameworks */ = {
+		1AB772C3DE3C0F4B4AE42E94 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -408,7 +396,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TimeTracker/Pods-TimeTracker-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		50972F7BCD52761B3E21A5FA /* [CP] Check Pods Manifest.lock */ = {
+		254E0C4E6D3F777DFC03D862 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -428,6 +416,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		539DDAA57F893B090D4A3037 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-TimeTracker/Pods-TimeTracker-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-TimeTracker/Pods-TimeTracker-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TimeTracker/Pods-TimeTracker-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -621,7 +630,7 @@
 		};
 		7B59F5742D17DB7C00562F6B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 946B500C54B2FA5A5979990B /* Pods-TimeTracker.debug.xcconfig */;
+			baseConfigurationReference = E01998B85177F27340F3A7AE /* Pods-TimeTracker.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -639,7 +648,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = hyerikim.TimeTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -654,7 +663,7 @@
 		};
 		7B59F5752D17DB7C00562F6B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9B93D36F6DE79CBC602CA34E /* Pods-TimeTracker.release.xcconfig */;
+			baseConfigurationReference = 938DF430F1FDE5E77183FB10 /* Pods-TimeTracker.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -672,7 +681,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = hyerikim.TimeTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
