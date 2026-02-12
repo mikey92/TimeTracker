@@ -123,17 +123,22 @@ class AlarmStorage {
                 }
             } else {
                 for weekday in alarm.weekdays {
-                    var dateComponents = DateComponents()
-                    dateComponents.weekday = weekday
-                    dateComponents.hour = alarm.hour
-                    dateComponents.minute = alarm.minute
+                    var weekdayComponents = DateComponents()
+                    weekdayComponents.weekday = weekday
+                    weekdayComponents.hour = alarm.hour
+                    weekdayComponents.minute = alarm.minute
 
-                    var calendar = Calendar.current
+                    var cityCalendar = Calendar.current
                     if let tz = TimeZone(identifier: alarm.timeZoneIdentifier) {
-                        calendar.timeZone = tz
+                        cityCalendar.timeZone = tz
                     }
 
-                    let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+                    guard let cityDate = cityCalendar.nextDate(after: Date(), matching: weekdayComponents, matchingPolicy: .nextTime) else {
+                        continue
+                    }
+
+                    let localComponents = Calendar.current.dateComponents([.weekday, .hour, .minute], from: cityDate)
+                    let trigger = UNCalendarNotificationTrigger(dateMatching: localComponents, repeats: true)
                     let request = UNNotificationRequest(identifier: "\(alarm.id)_\(weekday)", content: content, trigger: trigger)
                     center.add(request)
                 }
