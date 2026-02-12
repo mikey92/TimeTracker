@@ -4,7 +4,6 @@
 //  Created by Hye Ri Kim on 4/11/25.
 
 import UIKit
-import UserNotifications
 import SnapKit
 
 final class AlarmViewController: UIViewController {
@@ -189,23 +188,12 @@ final class AlarmViewController: UIViewController {
             return
         }
 
-        let content = UNMutableNotificationContent()
-        
-        if LocalizationManager.isKorean {
-            content.title = "\(selectedCity.name_kr) 알람"
-            content.body = "\(selectedCity.name_kr)시간으로 \(hour)시 \(minute)분이 되었습니다!"
-        } else if LocalizationManager.isJapanese {
-            content.title = "\(selectedCity.name)のアラーム"
-            content.body = "\(selectedCity.name)の時間で\(hour)時\(minute)分になりました。"
-        } else if LocalizationManager.isSimplifiedChinese {
-            content.title = "\(selectedCity.name)闹钟"
-            content.body = "现在是\(selectedCity.name)时间的\(hour)点\(minute)分。"
-        } else {
-            content.title = "\(selectedCity.name) Alarm"
-            content.body = "It's \(hour):\(String(format: "%02d", minute)) in \(selectedCity.name)"
-        }
-                
-        content.sound = .default
+        let content = NotificationService.makeAlarmContent(
+            cityName: selectedCity.name,
+            cityNameKR: selectedCity.name_kr,
+            hour: hour,
+            minute: minute
+        )
 
         if let oldMeta = alarmMeta {
             AlarmStorage.remove(id: oldMeta.id)
@@ -214,42 +202,22 @@ final class AlarmViewController: UIViewController {
         let id = alarmMeta?.id ?? UUID().uuidString
 
         if selectedWeekdays.isEmpty {
-            // 1회성 알람
-            let now = Date()
-            var cityComponents = cityCalendar.dateComponents([.year, .month, .day], from: now)
-            cityComponents.hour = hour
-            cityComponents.minute = minute
-
-            guard var cityDate = cityCalendar.date(from: cityComponents) else {
-                showToast(message: String(localized: "alarm_time_calculation_failed"))
-                return
-            }
-
-            if cityDate < now {
-                cityDate = cityCalendar.date(byAdding: .day, value: 1, to: cityDate) ?? cityDate
-            }
-
-            let triggerComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: cityDate)
-            let trigger = UNCalendarNotificationTrigger(dateMatching: triggerComponents, repeats: false)
-            let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
-            UNUserNotificationCenter.current().add(request)
+            NotificationService.scheduleOneTimeAlarm(
+                id: id,
+                content: content,
+                hour: hour,
+                minute: minute,
+                timeZoneIdentifier: selectedCity.timeZoneIdentifier
+            )
         } else {
-            // 반복 알람
-            for weekday in selectedWeekdays {
-                var weekdayComponents = DateComponents()
-                weekdayComponents.weekday = weekday
-                weekdayComponents.hour = hour
-                weekdayComponents.minute = minute
-
-                guard let cityDate = cityCalendar.nextDate(after: Date(), matching: weekdayComponents, matchingPolicy: .nextTime) else {
-                    continue
-                }
-
-                let localComponents = Calendar.current.dateComponents([.weekday, .hour, .minute], from: cityDate)
-                let trigger = UNCalendarNotificationTrigger(dateMatching: localComponents, repeats: true)
-                let request = UNNotificationRequest(identifier: "\(id)_\(weekday)", content: content, trigger: trigger)
-                UNUserNotificationCenter.current().add(request)
-            }
+            NotificationService.scheduleRepeatingAlarm(
+                id: id,
+                content: content,
+                hour: hour,
+                minute: minute,
+                weekdays: selectedWeekdays.sorted(),
+                timeZoneIdentifier: selectedCity.timeZoneIdentifier
+            )
         }
 
         let meta = AlarmMeta(

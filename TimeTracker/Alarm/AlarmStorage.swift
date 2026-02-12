@@ -7,7 +7,6 @@
 
 import Foundation
 import UIKit
-import UserNotifications
 
 class AlarmStorage {
     private static let key = "alarms"
@@ -30,16 +29,7 @@ class AlarmStorage {
         var all = load()
         guard let alarm = all.first(where: { $0.id == id }) else { return }
 
-        let center = UNUserNotificationCenter.current()
-
-        if alarm.weekdays.isEmpty {
-            // 1회성 알람
-            center.removePendingNotificationRequests(withIdentifiers: [alarm.id])
-        } else {
-            // 반복 알람
-            let ids = alarm.weekdays.map { "\(alarm.id)_\($0)" }
-            center.removePendingNotificationRequests(withIdentifiers: ids)
-        }
+        NotificationService.removeNotifications(for: alarm)
 
         all.removeAll { $0.id == id }
         save(all)
@@ -66,7 +56,6 @@ class AlarmStorage {
         save(all)
 
         let alarm = all[index]
-        let center = UNUserNotificationCenter.current()
 
         if isOn {
             // 알람 다시 켜는 경우: fired 기록 삭제
@@ -74,81 +63,35 @@ class AlarmStorage {
             fired.removeValue(forKey: alarm.id)
             UserDefaults.standard.set(fired, forKey: firedKey)
 
-            var didMoveToNextDay = false
-
-            let content = UNMutableNotificationContent()
-            if LocalizationManager.isKorean {
-                content.title = "\(alarm.cityName) 알람"
-                content.body = "\(alarm.cityName)시간으로 \(alarm.hour)시 \(alarm.minute)분이 되었습니다!"
-            } else if LocalizationManager.isJapanese {
-                content.title = "\(alarm.cityName)のアラーム"
-                content.body = "\(alarm.cityName)の時間で\(alarm.hour)時\(alarm.minute)分になりました。"
-            } else if LocalizationManager.isSimplifiedChinese {
-                content.title = "\(alarm.cityName)闹钟"
-                content.body = "现在是\(alarm.cityName)时间的\(alarm.hour)点\(alarm.minute)分。"
-            } else {
-                content.title = "\(alarm.cityName) Alarm"
-                content.body = "It's \(alarm.hour):\(String(format: "%02d", alarm.minute)) in \(alarm.cityName)"
-            }
-            content.sound = .default
+            let content = NotificationService.makeAlarmContent(
+                cityName: alarm.cityName,
+                cityNameKR: alarm.cityNameKR,
+                hour: alarm.hour,
+                minute: alarm.minute
+            )
 
             if alarm.weekdays.isEmpty {
-                let now = Date()
-                if let timeZone = TimeZone(identifier: alarm.timeZoneIdentifier) {
-                    var calendar = Calendar.current
-                    calendar.timeZone = timeZone
-
-                    var dateComponents = calendar.dateComponents([.year, .month, .day], from: now)
-                    dateComponents.hour = alarm.hour
-                    dateComponents.minute = alarm.minute
-
-                    guard var finalDate = calendar.date(from: dateComponents) else {
-                        completion?(false)
-                        return
-                    }
-
-                    if finalDate < now {
-                        finalDate = calendar.date(byAdding: .day, value: 1, to: finalDate) ?? finalDate
-                        didMoveToNextDay = true
-                    }
-
-                    let triggerComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: finalDate)
-                    let trigger = UNCalendarNotificationTrigger(dateMatching: triggerComponents, repeats: false)
-                    let request = UNNotificationRequest(identifier: alarm.id, content: content, trigger: trigger)
-                    center.add(request)
-                }
+                let didMoveToNextDay = NotificationService.scheduleOneTimeAlarm(
+                    id: alarm.id,
+                    content: content,
+                    hour: alarm.hour,
+                    minute: alarm.minute,
+                    timeZoneIdentifier: alarm.timeZoneIdentifier
+                )
+                completion?(didMoveToNextDay)
             } else {
-                for weekday in alarm.weekdays {
-                    var weekdayComponents = DateComponents()
-                    weekdayComponents.weekday = weekday
-                    weekdayComponents.hour = alarm.hour
-                    weekdayComponents.minute = alarm.minute
-
-                    var cityCalendar = Calendar.current
-                    if let tz = TimeZone(identifier: alarm.timeZoneIdentifier) {
-                        cityCalendar.timeZone = tz
-                    }
-
-                    guard let cityDate = cityCalendar.nextDate(after: Date(), matching: weekdayComponents, matchingPolicy: .nextTime) else {
-                        continue
-                    }
-
-                    let localComponents = Calendar.current.dateComponents([.weekday, .hour, .minute], from: cityDate)
-                    let trigger = UNCalendarNotificationTrigger(dateMatching: localComponents, repeats: true)
-                    let request = UNNotificationRequest(identifier: "\(alarm.id)_\(weekday)", content: content, trigger: trigger)
-                    center.add(request)
-                }
+                NotificationService.scheduleRepeatingAlarm(
+                    id: alarm.id,
+                    content: content,
+                    hour: alarm.hour,
+                    minute: alarm.minute,
+                    weekdays: alarm.weekdays,
+                    timeZoneIdentifier: alarm.timeZoneIdentifier
+                )
+                completion?(false)
             }
-
-            completion?(didMoveToNextDay)
         } else {
-            if alarm.weekdays.isEmpty {
-                center.removePendingNotificationRequests(withIdentifiers: [alarm.id])
-            } else {
-                let ids = alarm.weekdays.map { "\(alarm.id)_\($0)" }
-                center.removePendingNotificationRequests(withIdentifiers: ids)
-            }
-
+            NotificationService.removeNotifications(for: alarm)
             completion?(false)
         }
     }

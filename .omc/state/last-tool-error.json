@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"git -C /Users/mikekim/Projects/TimeTracker add -A && git -C /Users/mikekim/Projects/TimeTracker rebase --continue --no-edit 2>&1\",\"description\":\"Continue rebase for PR #5\"}",
+  "error": "Exit code 129\nerror: unknown option `no-edit'\nusage: git rebase [-i] [options] [--exec <cmd>] [--onto <newbase> | --keep-base] [<upstream> [<branch>]]\n   or: git rebase [-i] [options] [--exec <cmd>] [--onto <newbase>] --root [<branch>]\n   or: git rebase --continue | --abort | --skip | --edit-todo\n\n    --[no-]onto <revision>\n                          rebase onto given branch instead of upstream\n    --[no-]keep-base      use the merge-base of upstream and branch as the current base\n    --no-verify...",
+  "timestamp": "2026-02-19T03:33:37.274Z",
+  "retry_count": 1
+}
