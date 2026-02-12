@@ -35,20 +35,22 @@ final class AlarmTableViewCell: UITableViewCell {
         return label
     }()
     
-    let toggleSwitch: UISwitch = {
+    private lazy var toggleSwitch: UISwitch = {
         let toggle = UISwitch()
         toggle.onTintColor = .systemGreen
         toggle.addTarget(self, action: #selector(switchValueChanged), for: .valueChanged)
         return toggle
     }()
-    
+
     override func prepareForReuse() {
+        super.prepareForReuse()
         timeLabel.text = nil
         descriptionLabel.text = nil
         cityLabel.text = nil
         toggleSwitch.isOn = false
+        switchChanged = nil
     }
-    
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = .systemBackground
