@@ -132,25 +132,34 @@ class CityTableViewCell: UITableViewCell {
             let currentOffset = timeZone.secondsFromGMT(for: now)
             let localOffset = TimeZone.current.secondsFromGMT(for: now)
             let diffSeconds = currentOffset - localOffset
-            let hourDiff = Double(diffSeconds) / 3600.0
+            let totalMinutes = diffSeconds / 60
+            let hours = totalMinutes / 60
+            let minutes = abs(totalMinutes % 60)
 
             let calendar = Calendar.current
             var cityCalendar = Calendar.current
             cityCalendar.timeZone = timeZone
-            let dayDiff = calendar.dateComponents([.day], from: calendar.startOfDay(for: now), to: cityCalendar.startOfDay(for: now)).day ?? 0
+            let cityDay = cityCalendar.component(.day, from: now)
+            let localDay = calendar.component(.day, from: now)
 
-            var gapText = ""
-            if diffSeconds == 0 {
-                gapText = "\(String(localized: "today")), ±0"
+            let dayChange = cityDay - localDay
+            let dayText: String
+            if dayChange == 1 || dayChange < -1 {
+                dayText = String(localized: "tomorrow")
+            } else if dayChange == -1 || dayChange > 1 {
+                dayText = String(localized: "yesterday")
             } else {
-                let dayText = dayDiff == 1 ? "\(String(localized: "tomorrow"))" : (dayDiff == -1 ? "\(String(localized: "yesterday"))" : "\(String(localized: "today"))")
-                let hourStr: String
-                if hourDiff == hourDiff.rounded() {
-                    hourStr = "\(hourDiff >= 0 ? "+" : "")\(Int(hourDiff))"
-                } else {
-                    hourStr = "\(hourDiff >= 0 ? "+" : "")\(String(format: "%.1f", hourDiff))"
-                }
-                gapText = "\(dayText), \(hourStr)"
+                dayText = String(localized: "today")
+            }
+
+            let sign = diffSeconds >= 0 ? "+" : "-"
+            let gapText: String
+            if diffSeconds == 0 {
+                gapText = "\(dayText), ±0"
+            } else if minutes == 0 {
+                gapText = "\(dayText), \(sign)\(abs(hours))"
+            } else {
+                gapText = "\(dayText), \(sign)\(abs(hours)):\(String(format: "%02d", minutes))"
             }
             gapLabel.text = gapText
         }

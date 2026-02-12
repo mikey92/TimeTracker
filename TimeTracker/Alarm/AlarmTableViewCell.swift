@@ -38,7 +38,6 @@ final class AlarmTableViewCell: UITableViewCell {
     private lazy var toggleSwitch: UISwitch = {
         let toggle = UISwitch()
         toggle.onTintColor = .systemGreen
-        toggle.addTarget(self, action: #selector(switchValueChanged), for: .valueChanged)
         return toggle
     }()
 
@@ -66,6 +65,7 @@ final class AlarmTableViewCell: UITableViewCell {
         contentView.addSubview(cityLabel)
         contentView.addSubview(descriptionLabel)
         contentView.addSubview(toggleSwitch)
+        toggleSwitch.addTarget(self, action: #selector(switchValueChanged), for: .valueChanged)
         
         timeLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(12)

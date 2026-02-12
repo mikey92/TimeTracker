@@ -14,7 +14,7 @@ import WidgetKit
 
 class ListViewController: BaseAdViewController {
     private var timer: Timer?
-    var weatherCache: [String: (value: String, timestamp: Date)] = [:] // key = city.name
+    var weatherCache: [String: (value: String, timestamp: Date)] = [:]
         
     lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -141,9 +141,11 @@ class ListViewController: BaseAdViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
             self?.updateVisibleCellTimes()
 
-            self?.timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
+            let newTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
                 self?.updateVisibleCellTimes()
             }
+            RunLoop.main.add(newTimer, forMode: .common)
+            self?.timer = newTimer
         }
     }
 
@@ -199,17 +201,20 @@ class ListViewController: BaseAdViewController {
         
         guard let url = URL(string: apiUrl) else {
             print("Invalid URL")
+            completion("--")
             return
         }
 
         let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
             if let error = error {
                 print("Weather error: \(error.localizedDescription)")
+                DispatchQueue.main.async { completion("--") }
                 return
             }
 
             guard let data = data else {
                 print("No data received")
+                DispatchQueue.main.async { completion("--") }
                 return
             }
 
@@ -237,6 +242,7 @@ class ListViewController: BaseAdViewController {
                 }
             } catch {
                 print("Weather JSON parsing error: \(error.localizedDescription)")
+                DispatchQueue.main.async { completion("--") }
             }
         }
 
@@ -270,13 +276,13 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         let city = cityList[indexPath.row]
         cell.configure(city: city)
 
-        let cacheTTL: TimeInterval = 30 * 60 // 30분
+        let cacheTTL: TimeInterval = 30 * 60
         if let cached = weatherCache[city.name],
            Date().timeIntervalSince(cached.timestamp) < cacheTTL {
             cell.weatherLabel.text = cached.value
         } else {
+            cell.weatherLabel.text = "···"
             fetchWeather(for: city) { weather in
-                // 셀 재사용 확인 후 업데이트
                 if let visibleCell = tableView.cellForRow(at: indexPath) as? CityTableViewCell {
                     visibleCell.weatherLabel.text = weather
                 }
@@ -303,7 +309,7 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
                     cityList.remove(at: indexPath.row)
                     showToast(message: "\(city.name) \(String(localized: "delete_success"))")
                     tableView.deleteRows(at: [indexPath], with: .fade)
-                    updateTop3CitiesForWidget()
+                    self.updateTop3CitiesForWidget()
                 case .failure(let error):
                     guard let self = self else { return }
                     showToast(message: "\(city.name) \(String(localized: "delete_failure"))")
