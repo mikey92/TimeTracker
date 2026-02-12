@@ -89,7 +89,7 @@ struct TimeTrackerWidgetEntryView : View {
     
     var mediumView: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("현재 시각")
+            Text("current_time")
                 .font(.caption)
                 .foregroundColor(.secondary)
 
@@ -116,7 +116,7 @@ struct TimeTrackerWidgetEntryView : View {
     private func formattedTime(inMedium timeZone: TimeZone) -> String {
         let formatter = DateFormatter()
         formatter.timeZone = timeZone
-        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.locale = Locale.autoupdatingCurrent
         formatter.dateFormat = "a h:mm"
         return formatter.string(from: Date())
     }
@@ -137,8 +137,8 @@ struct TimeTrackerWidget: Widget {
             TimeTrackerWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("도시 알람 위젯")
-        .description("선택한 도시의 현재 시간을 보여줍니다.")
+        .configurationDisplayName("widget_display_name")
+        .description("widget_description")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
