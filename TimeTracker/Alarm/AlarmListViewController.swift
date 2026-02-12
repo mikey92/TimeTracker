@@ -89,21 +89,12 @@ final class AlarmListViewController: BaseAdViewController {
         present(navVC, animated: true)
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        alarms = AlarmStorage.load()
-        tableView.reloadData()
-    }
-    
     private func setupTableView() {
         view.addSubview(tableView)
         tableView.snp.makeConstraints {
             $0.left.right.top.equalToSuperview()
             $0.bottom.equalToSuperview().offset(-50)
         }
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "AlarmCell")
-        tableView.dataSource = self
-        tableView.delegate = self
         tableView.contentInsetAdjustmentBehavior = .automatic
     }
 }
@@ -155,11 +146,11 @@ extension AlarmListViewController: UITableViewDataSource, UITableViewDelegate {
                            isOn: alarm.isOn)
         }
         
+        let alarmId = alarm.id
         cell.switchChanged = { [weak self] isOn in
             guard let self else { return }
 
-            let alarm = self.alarms[indexPath.row]
-            AlarmStorage.update(id: alarm.id, isOn: isOn) { isNextDay in
+            AlarmStorage.update(id: alarmId, isOn: isOn) { isNextDay in
                 DispatchQueue.main.async { [weak self] in
                     guard let self else { return }
 
@@ -168,7 +159,7 @@ extension AlarmListViewController: UITableViewDataSource, UITableViewDelegate {
                     }
 
                     self.alarms = AlarmStorage.load()
-                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                    self.tableView.reloadData()
                 }
             }
         }
