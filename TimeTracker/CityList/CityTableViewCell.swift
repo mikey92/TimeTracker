@@ -44,7 +44,8 @@ class CityTableViewCell: UITableViewCell {
     lazy var gapLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
-        label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
+        label.font = UIFont.preferredFont(forTextStyle: .caption2)
+        label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .center
         return label
     }()
@@ -52,7 +53,8 @@ class CityTableViewCell: UITableViewCell {
     lazy var cityLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
-        label.font = UIFont.systemFont(ofSize: 25, weight: .bold)
+        label.font = UIFont.preferredFont(forTextStyle: .title2)
+        label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .center
         return label
     }()
@@ -60,7 +62,8 @@ class CityTableViewCell: UITableViewCell {
     lazy var amPmLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
-        label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        label.font = UIFont.preferredFont(forTextStyle: .headline)
+        label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .center
         return label
     }()
@@ -68,7 +71,8 @@ class CityTableViewCell: UITableViewCell {
     lazy var timeLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
-        label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+        label.font = UIFont.preferredFont(forTextStyle: .title1)
+        label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .center
         return label
     }()
@@ -76,7 +80,8 @@ class CityTableViewCell: UITableViewCell {
     lazy var weatherLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
-        label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        label.font = UIFont.preferredFont(forTextStyle: .headline)
+        label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .right
         return label
     }()
@@ -122,10 +127,10 @@ class CityTableViewCell: UITableViewCell {
     
     func configure(city: City) {
         cityLabel.text = city.name
-        
+
         // 1. 현재 시간 표시
         updateTime(for: city)
-        
+
         // 2. 시차 표시
         if let timeZone = TimeZone(identifier: city.timeZoneIdentifier) {
             let now = Date()
@@ -154,6 +159,9 @@ class CityTableViewCell: UITableViewCell {
             }
             gapLabel.text = gapText
         }
+
+        self.isAccessibilityElement = true
+        self.accessibilityLabel = "\(city.name), \(gapLabel.text ?? ""), \(amPmLabel.text ?? "") \(timeLabel.text ?? "")"
     }
 
     func updateTime(for city: City) {
@@ -165,6 +173,8 @@ class CityTableViewCell: UITableViewCell {
 
         amPmLabel.text = amPmFormatter.string(from: now)
         timeLabel.text = timeFormatter.string(from: now)
+
+        self.accessibilityLabel = "\(city.name), \(gapLabel.text ?? ""), \(amPmLabel.text ?? "") \(timeLabel.text ?? "")"
     }
     
     private func setupLayouts() {

@@ -28,7 +28,8 @@ class ListViewController: BaseAdViewController {
         let label = UILabel()
         label.text = String(localized: "select_city_prompt")
         label.textColor = .label
-        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.preferredFont(forTextStyle: .body)
+        label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .center
         return label
     }()
@@ -65,6 +66,8 @@ class ListViewController: BaseAdViewController {
     
     private func setupNavigationBar() {
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
+        addButton.accessibilityLabel = "Add city"
+        addButton.accessibilityHint = "Opens city search to add a new city"
         navigationItem.rightBarButtonItem = addButton
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             title: String(localized: "edit"),
@@ -72,6 +75,8 @@ class ListViewController: BaseAdViewController {
             target: self,
             action: #selector(editTapped)
         )
+        navigationItem.leftBarButtonItem?.accessibilityLabel = "Edit"
+        navigationItem.leftBarButtonItem?.accessibilityHint = "Toggle edit mode for reordering or deleting cities"
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.isTranslucent = true
@@ -141,9 +146,11 @@ class ListViewController: BaseAdViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
             self?.updateVisibleCellTimes()
 
-            self?.timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
+            let newTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
                 self?.updateVisibleCellTimes()
             }
+            RunLoop.main.add(newTimer, forMode: .common)
+            self?.timer = newTimer
         }
     }
 
@@ -199,17 +206,20 @@ class ListViewController: BaseAdViewController {
         
         guard let url = URL(string: apiUrl) else {
             print("Invalid URL")
+            completion("--")
             return
         }
 
         let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
             if let error = error {
                 print("Weather error: \(error.localizedDescription)")
+                DispatchQueue.main.async { completion("--") }
                 return
             }
 
             guard let data = data else {
                 print("No data received")
+                DispatchQueue.main.async { completion("--") }
                 return
             }
 
@@ -237,6 +247,7 @@ class ListViewController: BaseAdViewController {
                 }
             } catch {
                 print("Weather JSON parsing error: \(error.localizedDescription)")
+                DispatchQueue.main.async { completion("--") }
             }
         }
 
@@ -275,8 +286,8 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
            Date().timeIntervalSince(cached.timestamp) < cacheTTL {
             cell.weatherLabel.text = cached.value
         } else {
+            cell.weatherLabel.text = "···"
             fetchWeather(for: city) { weather in
-                // 셀 재사용 확인 후 업데이트
                 if let visibleCell = tableView.cellForRow(at: indexPath) as? CityTableViewCell {
                     visibleCell.weatherLabel.text = weather
                 }
@@ -291,27 +302,41 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         let selectedCity = cityList[indexPath.row]
         print("selectedCity \(selectedCity)")
     }
-    
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            let city = cityList[indexPath.row]
-            
-            city.deleteCityFromUserDefaults(cityName: city.name) { [weak self] result in
-                switch result {
-                case .success:
-                    guard let self = self else { return }
-                    cityList.remove(at: indexPath.row)
-                    showToast(message: "\(city.name) \(String(localized: "delete_success"))")
-                    tableView.deleteRows(at: [indexPath], with: .fade)
-                    updateTop3CitiesForWidget()
-                case .failure(let error):
-                    guard let self = self else { return }
-                    showToast(message: "\(city.name) \(String(localized: "delete_failure"))")
+
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: String(localized: "delete")) { [weak self] _, _, completionHandler in
+            guard let self = self else { return }
+            let city = self.cityList[indexPath.row]
+
+            let alert = UIAlertController(
+                title: String(localized: "delete_confirm_title"),
+                message: city.name,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: String(localized: "cancel"), style: .cancel) { _ in
+                completionHandler(false)
+            })
+            alert.addAction(UIAlertAction(title: String(localized: "delete"), style: .destructive) { _ in
+                city.deleteCityFromUserDefaults(cityName: city.name) { [weak self] result in
+                    switch result {
+                    case .success:
+                        guard let self = self else { return }
+                        self.cityList.remove(at: indexPath.row)
+                        self.showToast(message: "\(city.name) \(String(localized: "delete_success"))")
+                        tableView.deleteRows(at: [indexPath], with: .fade)
+                        self.updateTop3CitiesForWidget()
+                    case .failure(let error):
+                        guard let self = self else { return }
+                        self.showToast(message: "\(city.name) \(String(localized: "delete_failure"))")
+                    }
                 }
-            }
+                completionHandler(true)
+            })
+            self.present(alert, animated: true)
         }
+        return UISwipeActionsConfiguration(actions: [deleteAction])
     }
-    
+
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         return true // 모든 셀 이동 가능
     }

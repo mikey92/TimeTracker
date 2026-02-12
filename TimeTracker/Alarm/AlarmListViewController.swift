@@ -29,7 +29,8 @@ final class AlarmListViewController: BaseAdViewController {
         let label = UILabel()
         label.text = String(localized: "add_alarm_prompt")
         label.textColor = .label
-        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.preferredFont(forTextStyle: .body)
+        label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .center
         return label
     }()
@@ -52,6 +53,8 @@ final class AlarmListViewController: BaseAdViewController {
 
     private func setupNavigationBar() {
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
+        addButton.accessibilityLabel = "Add alarm"
+        addButton.accessibilityHint = "Opens alarm creation screen"
         navigationItem.rightBarButtonItem = addButton
 
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
@@ -172,16 +175,28 @@ extension AlarmListViewController: UITableViewDataSource, UITableViewDelegate {
         presentAlarmViewVC(withAlaram: alarm)
     }
 
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle,
-                   forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            let alarm = alarms[indexPath.row]
-            
-            AlarmStorage.remove(id: alarm.id) // ✅ Notification + 메타 데이터 한 번에 제거
-            
-            alarms.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .automatic)
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: String(localized: "delete")) { [weak self] _, _, completionHandler in
+            guard let self = self else { return }
+            let alarm = self.alarms[indexPath.row]
+
+            let alert = UIAlertController(
+                title: String(localized: "delete_confirm_title"),
+                message: alarm.cityName,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: String(localized: "cancel"), style: .cancel) { _ in
+                completionHandler(false)
+            })
+            alert.addAction(UIAlertAction(title: String(localized: "delete"), style: .destructive) { _ in
+                AlarmStorage.remove(id: alarm.id)
+                self.alarms.remove(at: indexPath.row)
+                tableView.deleteRows(at: [indexPath], with: .automatic)
+                completionHandler(true)
+            })
+            self.present(alert, animated: true)
         }
+        return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 
     private func weekdaySymbol(for weekday: Int) -> String {

@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"git -C /Users/mikekim/Projects/TimeTracker checkout fix/ui-ux-improvements && git -C /Users/mikekim/Projects/TimeTracker rebase main 2>&1\",\"description\":\"Rebase PR #6 onto main\"}",
+  "error": "Exit code 1\nSwitched to branch 'fix/ui-ux-improvements'\n\nRebasing (1/1)\rAuto-merging TimeTracker/Alarm/AlarmListViewController.swift\nAuto-merging TimeTracker/Alarm/AlarmTableViewCell.swift\nAuto-merging TimeTracker/CityList/CityTableViewCell.swift\nAuto-merging TimeTracker/CityList/ListViewController.swift\nCONFLICT (content): Merge conflict in TimeTracker/CityList/ListViewController.swift\nerror: could not apply 6a98dcd... improve UI/UX: accessibility, Dynamic Type, widget i18n\nhint: Resolve all co...",
+  "timestamp": "2026-02-19T03:34:21.912Z",
+  "retry_count": 1
+}
