@@ -112,6 +112,7 @@ class CityTableViewCell: UITableViewCell {
     }
 
     override func prepareForReuse() {
+        super.prepareForReuse()
         gapLabel.text = nil
         cityLabel.text = nil
         amPmLabel.text = nil
@@ -130,19 +131,26 @@ class CityTableViewCell: UITableViewCell {
             let now = Date()
             let currentOffset = timeZone.secondsFromGMT(for: now)
             let localOffset = TimeZone.current.secondsFromGMT(for: now)
-            let hourDiff = (currentOffset - localOffset) / 3600
+            let diffSeconds = currentOffset - localOffset
+            let hourDiff = Double(diffSeconds) / 3600.0
 
             let calendar = Calendar.current
-            let cityDay = calendar.component(.day, from: now.addingTimeInterval(TimeInterval(hourDiff * 3600)))
-            let localDay = calendar.component(.day, from: now)
+            var cityCalendar = Calendar.current
+            cityCalendar.timeZone = timeZone
+            let dayDiff = calendar.dateComponents([.day], from: calendar.startOfDay(for: now), to: cityCalendar.startOfDay(for: now)).day ?? 0
 
             var gapText = ""
-            if hourDiff == 0 {
+            if diffSeconds == 0 {
                 gapText = "\(String(localized: "today")), ±0"
             } else {
-                let dayChange = cityDay - localDay
-                let dayText = dayChange == 1 ? "\(String(localized: "tomorrow"))" : (dayChange == -1 ? "\(String(localized: "yesterday"))" : "\(String(localized: "today"))")
-                gapText = "\(dayText), \(hourDiff >= 0 ? "+" : "")\(hourDiff)"
+                let dayText = dayDiff == 1 ? "\(String(localized: "tomorrow"))" : (dayDiff == -1 ? "\(String(localized: "yesterday"))" : "\(String(localized: "today"))")
+                let hourStr: String
+                if hourDiff == hourDiff.rounded() {
+                    hourStr = "\(hourDiff >= 0 ? "+" : "")\(Int(hourDiff))"
+                } else {
+                    hourStr = "\(hourDiff >= 0 ? "+" : "")\(String(format: "%.1f", hourDiff))"
+                }
+                gapText = "\(dayText), \(hourStr)"
             }
             gapLabel.text = gapText
         }

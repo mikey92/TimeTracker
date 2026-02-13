@@ -14,7 +14,7 @@ import WidgetKit
 
 class ListViewController: BaseAdViewController {
     private var timer: Timer?
-    var weatherCache: [String: String] = [:] // key = city.name
+    var weatherCache: [String: (value: String, timestamp: Date)] = [:] // key = city.name
         
     lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -231,7 +231,7 @@ class ListViewController: BaseAdViewController {
                     }
                     
                     DispatchQueue.main.async {
-                        self?.weatherCache[city.name] = formattedTemp
+                        self?.weatherCache[city.name] = (value: formattedTemp, timestamp: Date())
                         completion(formattedTemp)
                     }
                 }
@@ -270,8 +270,10 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         let city = cityList[indexPath.row]
         cell.configure(city: city)
 
-        if let cachedWeather = weatherCache[city.name] {
-            cell.weatherLabel.text = cachedWeather
+        let cacheTTL: TimeInterval = 30 * 60 // 30분
+        if let cached = weatherCache[city.name],
+           Date().timeIntervalSince(cached.timestamp) < cacheTTL {
+            cell.weatherLabel.text = cached.value
         } else {
             fetchWeather(for: city) { weather in
                 // 셀 재사용 확인 후 업데이트
@@ -298,13 +300,12 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
                 switch result {
                 case .success:
                     guard let self = self else { return }
-                    print("City deleted successfully!")
                     cityList.remove(at: indexPath.row)
                     showToast(message: "\(city.name) \(String(localized: "delete_success"))")
                     tableView.deleteRows(at: [indexPath], with: .fade)
+                    updateTop3CitiesForWidget()
                 case .failure(let error):
                     guard let self = self else { return }
-                    print("Failed to delete city: \(error)")
                     showToast(message: "\(city.name) \(String(localized: "delete_failure"))")
                 }
             }

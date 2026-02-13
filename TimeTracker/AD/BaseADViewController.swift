@@ -10,26 +10,27 @@ import GoogleMobileAds
 import SnapKit
 
 class BaseAdViewController: UIViewController {
-    
-    var bannerView: BannerView!
+
+    private var bannerView: BannerView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupAdBanner()
     }
 
     func setupAdBanner() {
-        bannerView = BannerView(adSize: AdSizeBanner)
-        bannerView.adUnitID = ""
-        bannerView.rootViewController = self
-        bannerView.load(Request())
-        
-        view.addSubview(bannerView)
-        
-        bannerView.snp.makeConstraints { make in
+        guard bannerView == nil else { return }
+        let banner = BannerView(adSize: AdSizeBanner)
+        banner.adUnitID = ""
+        banner.rootViewController = self
+        banner.load(Request())
+
+        view.addSubview(banner)
+
+        banner.snp.makeConstraints { make in
             make.left.right.equalToSuperview()
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
             make.height.equalTo(50)
         }
+        bannerView = banner
     }
 }
