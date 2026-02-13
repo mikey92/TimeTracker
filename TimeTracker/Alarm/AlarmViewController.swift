@@ -215,19 +215,21 @@ final class AlarmViewController: UIViewController {
 
         if selectedWeekdays.isEmpty {
             // 1회성 알람
-            var cityComponents = DateComponents()
+            let now = Date()
+            var cityComponents = cityCalendar.dateComponents([.year, .month, .day], from: now)
             cityComponents.hour = hour
             cityComponents.minute = minute
 
-            guard let cityDate = cityCalendar.date(from: cityComponents) else {
+            guard var cityDate = cityCalendar.date(from: cityComponents) else {
                 showToast(message: String(localized: "alarm_time_calculation_failed"))
                 return
             }
 
-            let localDate = Date(timeInterval: TimeInterval(TimeZone.current.secondsFromGMT(for: cityDate)
-                                      - cityCalendar.timeZone.secondsFromGMT(for: cityDate)), since: cityDate)
+            if cityDate < now {
+                cityDate = cityCalendar.date(byAdding: .day, value: 1, to: cityDate) ?? cityDate
+            }
 
-            let triggerComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: localDate)
+            let triggerComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: cityDate)
             let trigger = UNCalendarNotificationTrigger(dateMatching: triggerComponents, repeats: false)
             let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
             UNUserNotificationCenter.current().add(request)

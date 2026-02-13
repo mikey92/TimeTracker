@@ -22,7 +22,7 @@ class AlarmStorage {
     }
 
     static func save(_ list: [AlarmMeta]) {
-        let data = try? JSONEncoder().encode(list)
+        guard let data = try? JSONEncoder().encode(list) else { return }
         UserDefaults.standard.set(data, forKey: key)
     }
     
@@ -98,7 +98,7 @@ class AlarmStorage {
                     var calendar = Calendar.current
                     calendar.timeZone = timeZone
 
-                    var dateComponents = DateComponents()
+                    var dateComponents = calendar.dateComponents([.year, .month, .day], from: now)
                     dateComponents.hour = alarm.hour
                     dateComponents.minute = alarm.minute
 
@@ -112,11 +112,7 @@ class AlarmStorage {
                         didMoveToNextDay = true
                     }
 
-                    let localOffset = TimeInterval(TimeZone.current.secondsFromGMT(for: finalDate))
-                    let targetOffset = TimeInterval(timeZone.secondsFromGMT(for: finalDate))
-                    let adjustedDate = finalDate - (targetOffset - localOffset)
-
-                    let triggerComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: adjustedDate)
+                    let triggerComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: finalDate)
                     let trigger = UNCalendarNotificationTrigger(dateMatching: triggerComponents, repeats: false)
                     let request = UNNotificationRequest(identifier: alarm.id, content: content, trigger: trigger)
                     center.add(request)

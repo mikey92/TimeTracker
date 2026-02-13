@@ -8,9 +8,10 @@
 import UIKit
 import GoogleMobileAds
 import Firebase
+import UserNotifications
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
 
 
@@ -19,6 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         MobileAds.shared.start(completionHandler: nil)
         FirebaseApp.configure()
+        UNUserNotificationCenter.current().delegate = self
 
         return true
     }
