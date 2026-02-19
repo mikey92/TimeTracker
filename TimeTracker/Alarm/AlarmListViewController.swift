@@ -185,9 +185,7 @@ extension AlarmListViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     private func weekdaySymbol(for weekday: Int) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale.current
-        return formatter.shortWeekdaySymbols[(weekday - 1) % 7]
+        return TimeZoneHelper.weekdaySymbol(for: weekday)
     }
 }
 

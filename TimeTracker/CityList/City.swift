@@ -18,93 +18,38 @@ struct City: Codable {
 }
 
 extension City {
-    // 개별 저장
     func saveCityToUserDefaults() -> Bool {
-        let defaults = UserDefaults.standard
-
-        do {
-            var cities = City.loadCitiesFromUserDefaults()
-
-            if cities.contains(self) {
-                print("City already exists. Skipping save.")
-                return false
-            }
-
-            cities.append(self)
-            let data = try JSONEncoder().encode(cities)
-            defaults.set(data, forKey: "cities")
-            print("City saved successfully!")
-            return true
-        } catch {
-            print("Failed to save city: \(error)")
-            return false
-        }
+        return CityRepository.add(self)
     }
-    
-    // 순서 저장
+
     static func saveCityListToUserDefaults(_ cities: [City]) -> Bool {
-        let defaults = UserDefaults.standard
-
-        do {
-            let data = try JSONEncoder().encode(cities)
-            defaults.set(data, forKey: "cities")
-            print("City list saved with new order!")
-            return true
-        } catch {
-            print("Failed to save city list: \(error)")
-            return false
-        }
+        return CityRepository.saveAll(cities)
     }
-    
+
     static func loadCitiesFromUserDefaults() -> [City] {
-        let defaults = UserDefaults.standard
-
-        guard let data = defaults.data(forKey: "cities") else {
-            print("No cities found in UserDefaults.")
-            return [] // 데이터가 없으면 빈 배열 반환
-        }
-
-        do {
-            // JSON 데이터를 City 배열로 디코딩
-            let cities = try JSONDecoder().decode([City].self, from: data)
-            print("Cities loaded successfully!")
-            return cities
-        } catch {
-            print("Failed to load cities: \(error)")
-            return [] // 실패 시 빈 배열 반환
-        }
+        return CityRepository.loadAll()
     }
-    
+
     func deleteCityFromUserDefaults(cityName: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        let defaults = UserDefaults.standard
-
-        // 기존 City 배열 로드
-        var cities = City.loadCitiesFromUserDefaults()
-
-        // 이름이 일치하지 않는 City만 남기기
-        cities = cities.filter { $0.name != cityName }
-
-        do {
-            // 갱신된 City 배열 저장
-            let data = try JSONEncoder().encode(cities)
-            defaults.set(data, forKey: "cities")
-            print("City deleted successfully!")
-            completion(.success(())) // 성공 시 호출
-        } catch {
-            print("Failed to delete city: \(error)")
-            completion(.failure(error)) // 실패 시 호출
-        }
+        CityRepository.remove(cityName: cityName, completion: completion)
     }
-    
+
     func deleteAllCitiesFromUserDefaults() {
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: "cities")
-        print("All cities deleted successfully!")
+        CityRepository.removeAll()
     }
 }
 
 extension City: Equatable {
     static func == (lhs: City, rhs: City) -> Bool {
         return lhs.name == rhs.name && lhs.timeZoneIdentifier == rhs.timeZoneIdentifier
+    }
+}
+
+extension City {
+    var displayName: String {
+        if LocalizationManager.isKorean {
+            return "\(name_kr) (\(name))"
+        }
+        return name
     }
 }

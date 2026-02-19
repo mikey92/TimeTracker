@@ -7,14 +7,12 @@
 
 import UIKit
 import SnapKit
-import CoreLocation
 import UserNotifications
 import GoogleMobileAds
 import WidgetKit
 
 class ListViewController: BaseAdViewController {
     private var timer: Timer?
-    var weatherCache: [String: (value: String, timestamp: Date)] = [:] // key = city.name
         
     lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -191,57 +189,6 @@ class ListViewController: BaseAdViewController {
             }
         }
     }
-    
-    // MARK: - 날씨 요청 함수
-    private func fetchWeather(for city: City, completion: @escaping (String) -> Void) {
-        let apiKey = ""
-        let apiUrl = "https://api.openweathermap.org/data/2.5/weather?lat=\(city.lat)&lon=\(city.lng)&appid=\(apiKey)"
-        
-        guard let url = URL(string: apiUrl) else {
-            print("Invalid URL")
-            return
-        }
-
-        let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-            if let error = error {
-                print("Weather error: \(error.localizedDescription)")
-                return
-            }
-
-            guard let data = data else {
-                print("No data received")
-                return
-            }
-
-            do {
-                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-                   let main = json["main"] as? [String: Any],
-                   let tempKelvin = main["temp"] as? Double {
-                    
-                    let tempCelsius = tempKelvin - 273.15
-                    let measurement = Measurement(value: tempCelsius, unit: UnitTemperature.celsius)
-                    let convertedTemp = measurement.converted(to: TemperatureUnitManager.unit)
-                    
-                    let flooredTemp = Int(floor(convertedTemp.value))
-                    let formattedTemp: String
-                    if TemperatureUnitManager.isCelsius {
-                        formattedTemp = "\(flooredTemp)°C"
-                    } else {
-                        formattedTemp = "\(flooredTemp)°F"
-                    }
-                    
-                    DispatchQueue.main.async {
-                        self?.weatherCache[city.name] = (value: formattedTemp, timestamp: Date())
-                        completion(formattedTemp)
-                    }
-                }
-            } catch {
-                print("Weather JSON parsing error: \(error.localizedDescription)")
-            }
-        }
-
-        task.resume()
-    }
 }
 
 extension ListViewController: CitySearchDelegate {
@@ -270,16 +217,9 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         let city = cityList[indexPath.row]
         cell.configure(city: city)
 
-        let cacheTTL: TimeInterval = 30 * 60 // 30분
-        if let cached = weatherCache[city.name],
-           Date().timeIntervalSince(cached.timestamp) < cacheTTL {
-            cell.weatherLabel.text = cached.value
-        } else {
-            fetchWeather(for: city) { weather in
-                // 셀 재사용 확인 후 업데이트
-                if let visibleCell = tableView.cellForRow(at: indexPath) as? CityTableViewCell {
-                    visibleCell.weatherLabel.text = weather
-                }
+        WeatherService.fetchWeather(for: city) { weather in
+            if let visibleCell = tableView.cellForRow(at: indexPath) as? CityTableViewCell {
+                visibleCell.weatherLabel.text = weather
             }
         }
 

@@ -36,6 +36,10 @@
 		7BE3CC482D186241006A1BA6 /* UIStackView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3CC472D186241006A1BA6 /* UIStackView+Extension.swift */; };
 		7BE3CC4A2D18D3CF006A1BA6 /* UIViewController+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3CC492D18D3CF006A1BA6 /* UIViewController+Extension.swift */; };
 		7BE3CC4C2D18F289006A1BA6 /* SearchCityTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BE3CC4B2D18F289006A1BA6 /* SearchCityTableViewCell.swift */; };
+		AA0000012E0C000000000001 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000052E0C000000000001 /* NotificationService.swift */; };
+		AA0000022E0C000000000002 /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000062E0C000000000002 /* WeatherService.swift */; };
+		AA0000032E0C000000000003 /* TimeZoneHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000072E0C000000000003 /* TimeZoneHelper.swift */; };
+		AA0000042E0C000000000004 /* CityRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000082E0C000000000004 /* CityRepository.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -98,6 +102,10 @@
 		7BE3CC472D186241006A1BA6 /* UIStackView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Extension.swift"; sourceTree = "<group>"; };
 		7BE3CC492D18D3CF006A1BA6 /* UIViewController+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extension.swift"; sourceTree = "<group>"; };
 		7BE3CC4B2D18F289006A1BA6 /* SearchCityTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCityTableViewCell.swift; sourceTree = "<group>"; };
+		AA0000052E0C000000000001 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		AA0000062E0C000000000002 /* WeatherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherService.swift; sourceTree = "<group>"; };
+		AA0000072E0C000000000003 /* TimeZoneHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneHelper.swift; sourceTree = "<group>"; };
+		AA0000082E0C000000000004 /* CityRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityRepository.swift; sourceTree = "<group>"; };
 		938DF430F1FDE5E77183FB10 /* Pods-TimeTracker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TimeTracker.release.xcconfig"; path = "Target Support Files/Pods-TimeTracker/Pods-TimeTracker.release.xcconfig"; sourceTree = "<group>"; };
 		E01998B85177F27340F3A7AE /* Pods-TimeTracker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TimeTracker.debug.xcconfig"; path = "Target Support Files/Pods-TimeTracker/Pods-TimeTracker.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -232,6 +240,8 @@
 			children = (
 				7B5E37182DD8813D0069A0A5 /* TimeTracker.entitlements */,
 				7B5E36B62DD2B2E40069A0A5 /* AD */,
+				AA0000092E0C000000000005 /* Service */,
+				AA00000A2E0C000000000006 /* Repository */,
 				7B0F67C62DA953070011857C /* Resource */,
 				7B0F67C12DA9518B0011857C /* CityList */,
 				7B0F67C22DA9519A0011857C /* Alarm */,
@@ -264,6 +274,24 @@
 				7BE3CC492D18D3CF006A1BA6 /* UIViewController+Extension.swift */,
 			);
 			path = Extension;
+			sourceTree = "<group>";
+		};
+		AA0000092E0C000000000005 /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000052E0C000000000001 /* NotificationService.swift */,
+				AA0000062E0C000000000002 /* WeatherService.swift */,
+				AA0000072E0C000000000003 /* TimeZoneHelper.swift */,
+			);
+			path = Service;
+			sourceTree = "<group>";
+		};
+		AA00000A2E0C000000000006 /* Repository */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000082E0C000000000004 /* CityRepository.swift */,
+			);
+			path = Repository;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -465,6 +493,10 @@
 				7B59F5792D182B4C00562F6B /* ListViewController.swift in Sources */,
 				7B5E36FA2DD86EE60069A0A5 /* AlarmStorage.swift in Sources */,
 				7B59F5772D182B3400562F6B /* CitySearchViewController.swift in Sources */,
+				AA0000012E0C000000000001 /* NotificationService.swift in Sources */,
+				AA0000022E0C000000000002 /* WeatherService.swift in Sources */,
+				AA0000032E0C000000000003 /* TimeZoneHelper.swift in Sources */,
+				AA0000042E0C000000000004 /* CityRepository.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
