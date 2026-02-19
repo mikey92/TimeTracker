@@ -16,22 +16,25 @@ final class AlarmTableViewCell: UITableViewCell {
 
     private let timeLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
-        label.textColor = .label // 다크모드 대응
+        label.font = UIFont.preferredFont(forTextStyle: .title1)
+        label.adjustsFontForContentSizeCategory = true
+        label.textColor = .label
         return label
     }()
     
     private let cityLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .label
         return label
     }()
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        label.textColor = .label // 다크모드 대응
+        label.font = UIFont.preferredFont(forTextStyle: .footnote)
+        label.adjustsFontForContentSizeCategory = true
+        label.textColor = .label
         return label
     }()
     
@@ -95,6 +98,14 @@ final class AlarmTableViewCell: UITableViewCell {
         cityLabel.text = city
         descriptionLabel.text = description
         toggleSwitch.isOn = isOn
+
+        self.isAccessibilityElement = false
+        self.accessibilityElements = [timeLabel, cityLabel, descriptionLabel, toggleSwitch]
+        timeLabel.accessibilityLabel = time
+        cityLabel.accessibilityLabel = city
+        descriptionLabel.accessibilityLabel = description
+        toggleSwitch.accessibilityLabel = "Alarm toggle"
+        toggleSwitch.accessibilityHint = isOn ? "Alarm is on" : "Alarm is off"
     }
     
     @objc private func switchValueChanged(_ sender: UISwitch) {
@@ -103,11 +114,11 @@ final class AlarmTableViewCell: UITableViewCell {
     
     func attributedTime(ampm: String, time: String) -> NSAttributedString {
         let amAttr: [NSAttributedString.Key: Any] = [
-            .font: UIFont.boldSystemFont(ofSize: 20),
+            .font: UIFont.preferredFont(forTextStyle: .title3),
             .foregroundColor: UIColor.label
         ]
         let timeAttr: [NSAttributedString.Key: Any] = [
-            .font: UIFont.boldSystemFont(ofSize: 30),
+            .font: UIFont.preferredFont(forTextStyle: .title1),
             .foregroundColor: UIColor.label
         ]
         let result: NSMutableAttributedString
